@@ -170,6 +170,7 @@ class AppDatabase {
   Future<void> deleteCategory(String id) async {
     final store = await _store;
     _table(store, 'categories').removeWhere((row) => row['id'] == id);
+    _table(store, 'budgets').removeWhere((row) => row['categoryId'] == id);
     await _save();
   }
 

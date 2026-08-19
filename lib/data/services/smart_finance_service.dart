@@ -109,65 +109,93 @@ class SmartExpenseClassifier {
 
   static const Map<String, List<String>> _keywords = {
     'cat_food': [
-      'an',
-      'ăn',
-      'sang',
-      'sáng',
-      'trua',
-      'trưa',
-      'toi',
-      'tối',
+      'an sang',
+      'an trua',
+      'an toi',
+      'do an',
+      'an vat',
       'com',
-      'cơm',
+      'com tam',
+      'com ga',
+      'com van phong',
       'pho',
-      'phở',
-      'bun',
-      'bún',
-      'mi',
-      'mì',
+      'bun bo',
+      'bun cha',
+      'hu tieu',
+      'banh mi',
+      'mi cay',
+      'lau',
+      'nuong',
       'tra sua',
-      'trà sữa',
+      'tra chanh',
+      'nuoc ep',
+      'sinh to',
+      'ca phe',
       'coffee',
       'cafe',
-      'cà phê',
-      'banh',
-      'bánh',
-      'nhà hàng',
+      'highlands',
+      'phuc long',
+      'the coffee house',
+      'starbucks',
+      'quan an',
+      'nha hang',
       'restaurant',
       'grabfood',
       'shopeefood',
+      'befood',
+      'gofood',
     ],
     'cat_transport': [
-      'xang',
-      'xăng',
-      'xe',
       'grab',
+      'grab bike',
+      'grabcar',
+      'grab car',
+      'xanhsm',
+      'xanh sm',
+      'be',
+      'be bike',
+      'becar',
+      'be car',
+      'gojek',
+      'xe om',
+      'xe cong nghe',
       'taxi',
+      'mai linh',
+      'vinasun',
+      'vinbus',
       'bus',
       'buyt',
-      'buýt',
+      'metro',
+      'tau dien',
       've xe',
-      'vé xe',
       'do xang',
-      'đổ xăng',
+      'xang',
+      'sac xe',
       'gui xe',
-      'gửi xe',
-      'di chuyển',
+      'giu xe',
+      'phi cau duong',
+      'tram thu phi',
+      'cao toc',
+      'di chuyen',
     ],
     'cat_shopping': [
-      'mua',
-      'shopping',
+      'mua sam',
       'shopee',
       'lazada',
       'tiki',
+      'sendo',
       'quan ao',
-      'quần áo',
-      'giay',
-      'giày',
-      'tui',
-      'túi',
+      'thoi trang',
+      'giay dep',
+      'tui xach',
+      'my pham',
+      'phu kien',
+      'do gia dung',
+      'dien may',
       'dien thoai',
-      'điện thoại',
+      'tablet',
+      'laptop',
+      'airpods',
     ],
     'cat_entertainment': [
       'game',
@@ -175,129 +203,142 @@ class SmartExpenseClassifier {
       'skin',
       'netflix',
       'spotify',
+      'youtube premium',
+      'apple music',
+      'steam',
+      'cgv',
+      'lotte cinema',
+      'galaxy cinema',
+      'beta cinema',
       'phim',
-      'rap',
-      'rạp',
+      'rap phim',
       'cinema',
       'karaoke',
       'giai tri',
-      'giải trí',
+      'ca nhac',
+      'concert',
     ],
     'cat_health': [
       'thuoc',
-      'thuốc',
+      'nha thuoc',
+      'long chau',
+      'pharmacity',
+      'an khang',
       'benh vien',
-      'bệnh viện',
-      'kham',
-      'khám',
+      'phong kham',
+      'kham benh',
+      'xet nghiem',
+      'vien phi',
       'bac si',
-      'bác sĩ',
       'y te',
-      'y tế',
       'nha khoa',
+      'kham rang',
+      'mat kinh',
     ],
     'cat_education': [
-      'hoc',
-      'học',
-      'sach',
-      'sách',
-      'khoa hoc',
-      'khóa học',
       'hoc phi',
-      'học phí',
+      'hoc them',
+      'gia su',
+      'khoa hoc',
+      'tai lieu',
+      'sach',
+      'vo',
       'udemy',
       'coursera',
+      'ielts',
+      'toeic',
+      'tieng anh',
+      'on thi',
       'trung tam',
-      'trung tâm',
     ],
     'cat_bills': [
-      'dien',
-      'điện',
-      'nuoc',
-      'nước',
+      'tien dien',
+      'dien luc',
+      'evn',
+      'tien nuoc',
+      'cap nuoc',
       'wifi',
       'internet',
+      'fpt',
+      'viettel',
+      'vnpt',
       'hoa don',
-      'hóa đơn',
-      'cuoc',
-      'cước',
+      'cuoc dien thoai',
+      'tra sau',
       'sim',
       'bao hiem',
-      'bảo hiểm',
+      'gas',
+      'phi dich vu',
+      'truyen hinh',
     ],
     'cat_housing': [
-      'nha',
-      'nhà',
-      'tro',
-      'trọ',
+      'tien nha',
       'thue nha',
-      'thuê nhà',
+      'phong tro',
+      'tien tro',
       'chung cu',
-      'chung cư',
+      'can ho',
+      'coc nha',
+      'coc phong',
       'noi that',
-      'nội thất',
+      'sua phong',
       'sua nha',
-      'sửa nhà',
+      'nha o',
     ],
   };
 
   static const Map<String, List<String>> _incomeKeywords = {
     'cat_salary': [
       'luong',
-      'lương',
       'salary',
+      'payroll',
       'cong ty tra',
-      'công ty trả',
+      'cong ty chuyen luong',
       'nhan luong',
-      'nhận lương',
-      'tien luong',
-      'tiền lương',
+      'luong thang',
+      'luong co ban',
     ],
     'cat_bonus': [
       'thuong',
-      'thưởng',
       'bonus',
+      'commission',
       'hoa hong',
-      'hoa hồng',
       'phu cap',
-      'phụ cấp',
       'tet',
-      'tết',
+      'thuong doanh so',
+      'thuong nong',
     ],
     'cat_freelance': [
       'freelance',
       'lam them',
-      'làm thêm',
-      'job ngoai',
-      'job ngoài',
       'du an',
-      'dự án',
+      'nhan job',
       'khach tra',
-      'khách trả',
+      'khach chuyen tien',
+      'viet content',
+      'thiet ke',
+      'code web',
     ],
     'cat_investment': [
       'dau tu',
-      'đầu tư',
       'co tuc',
-      'cổ tức',
-      'lai',
-      'lãi',
-      'tiet kiem',
-      'tiết kiệm',
+      'lai ngan hang',
+      'lai tiet kiem',
       'chung khoan',
-      'chứng khoán',
+      'ban co phieu',
       'crypto',
+      'staking',
+      'trade',
     ],
     'cat_other_income': [
-      'ban',
-      'bán',
-      'thu',
       'nhan tien',
-      'nhận tiền',
+      'chuyen khoan ve',
       'duoc tang',
-      'được tặng',
       'hoan tien',
-      'hoàn tiền',
+      'refund',
+      'ban do cu',
+      'thu no',
+      'thu hoi cong no',
     ],
   };
 
@@ -339,38 +380,70 @@ class SmartExpenseClassifier {
     final normalized = _normalize(text);
     if (normalized.trim().isEmpty) return null;
 
-    final availableIds = categories
+    final availableCategories = categories
         .where((category) => category.isIncome == isIncome)
-        .map((category) => category.id)
-        .toSet();
-    var bestId = '';
-    var bestScore = 0;
-    var matched = '';
+        .toList();
+    final availableById = {
+      for (final category in availableCategories) category.id: category,
+    };
+    final scores = <String, int>{};
+    final hitsById = <String, Set<String>>{};
 
-    for (final entry in keywords.entries) {
-      if (!availableIds.contains(entry.key)) continue;
-      var score = 0;
-      final hits = <String>[];
-      for (final keyword in entry.value) {
-        final normalizedKeyword = _normalize(keyword);
-        if (normalized.contains(normalizedKeyword)) {
-          score += normalizedKeyword.length > 4 ? 2 : 1;
-          hits.add(keyword);
-        }
-      }
-      if (score > bestScore) {
-        bestScore = score;
-        bestId = entry.key;
-        matched = hits.take(2).join(', ');
+    void addMatch(String categoryId, String hit, int score) {
+      if (!availableById.containsKey(categoryId)) return;
+      scores[categoryId] = (scores[categoryId] ?? 0) + score;
+      hitsById.putIfAbsent(categoryId, () => <String>{}).add(hit);
+    }
+
+    for (final category in availableCategories) {
+      final normalizedName = _normalize(category.name);
+      if (normalizedName.length >= 3 && normalized.contains(normalizedName)) {
+        addMatch(
+          category.id,
+          'ten danh muc: ${category.name}',
+          normalizedName.contains(' ') ? 4 : 3,
+        );
       }
     }
 
-    if (bestScore == 0) return null;
+    for (final entry in keywords.entries) {
+      for (final keyword in entry.value) {
+        final normalizedKeyword = _normalize(keyword);
+        if (normalized.contains(normalizedKeyword)) {
+          addMatch(
+            entry.key,
+            keyword,
+            _keywordScore(normalized, normalizedKeyword),
+          );
+        }
+      }
+    }
+
+    if (scores.isEmpty) return null;
+
+    var bestId = '';
+    var bestScore = 0;
+    scores.forEach((categoryId, score) {
+      if (score > bestScore) {
+        bestId = categoryId;
+        bestScore = score;
+      }
+    });
+
+    final matched = (hitsById[bestId] ?? const <String>{}).take(3).join(', ');
     return CategorySuggestion(
       categoryId: bestId,
-      confidence: min(0.95, 0.55 + bestScore * 0.1),
-      reason: matched.isEmpty ? 'Từ khóa chi tiêu' : 'Khớp: $matched',
+      confidence: min(0.96, 0.45 + bestScore * 0.08),
+      reason: matched.isEmpty ? 'khop bo tu khoa' : 'khop: $matched',
     );
+  }
+
+  static int _keywordScore(String text, String keyword) {
+    var score = keyword.contains(' ') ? 3 : (keyword.length >= 8 ? 2 : 1);
+    if (text == keyword || text.startsWith('$keyword ')) {
+      score += 1;
+    }
+    return score;
   }
 
   static String _normalize(String value) {
@@ -1208,14 +1281,60 @@ class FinancialAssistantService {
     }
 
     const aliases = {
-      'cat_food': ['an uong', 'do an', 'tra sua', 'ca phe', 'com', 'pho'],
-      'cat_transport': ['di chuyen', 'xang', 'grab', 'taxi', 'xe'],
-      'cat_shopping': ['mua sam', 'shopping', 'shopee', 'lazada'],
-      'cat_entertainment': ['giai tri', 'game', 'phim', 'netflix', 'valorant'],
-      'cat_health': ['suc khoe', 'thuoc', 'benh vien', 'kham benh'],
-      'cat_education': ['hoc tap', 'hoc phi', 'sach', 'khoa hoc'],
-      'cat_bills': ['hoa don', 'dien nuoc', 'wifi', 'internet', 'cuoc'],
-      'cat_housing': ['nha o', 'tien nha', 'thue nha', 'phong tro'],
+      'cat_food': [
+        'an uong',
+        'do an',
+        'tra sua',
+        'ca phe',
+        'com',
+        'pho',
+        'grabfood',
+        'shopeefood',
+      ],
+      'cat_transport': [
+        'di chuyen',
+        'xang',
+        'grab',
+        'xanhsm',
+        'xanh sm',
+        'be',
+        'taxi',
+        'metro',
+      ],
+      'cat_shopping': ['mua sam', 'shopee', 'lazada', 'tiki', 'quan ao'],
+      'cat_entertainment': [
+        'giai tri',
+        'game',
+        'phim',
+        'netflix',
+        'valorant',
+        'spotify',
+      ],
+      'cat_health': [
+        'suc khoe',
+        'thuoc',
+        'benh vien',
+        'kham benh',
+        'long chau',
+        'pharmacity',
+      ],
+      'cat_education': [
+        'hoc tap',
+        'hoc phi',
+        'sach',
+        'khoa hoc',
+        'ielts',
+        'toeic',
+      ],
+      'cat_bills': [
+        'hoa don',
+        'dien nuoc',
+        'wifi',
+        'internet',
+        'viettel',
+        'fpt',
+      ],
+      'cat_housing': ['nha o', 'tien nha', 'thue nha', 'phong tro', 'chung cu'],
     };
 
     for (final entry in aliases.entries) {

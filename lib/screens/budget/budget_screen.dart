@@ -36,8 +36,9 @@ class _BudgetScreenState extends State<BudgetScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: isDark ? AppColors.backgroundDark : AppColors.background,
       appBar: AppBar(title: const Text(AppStrings.budget)),
       body: RefreshIndicator(
         color: AppColors.primary,
@@ -231,6 +232,11 @@ class _BudgetScreenState extends State<BudgetScreen> {
   }
 
   Widget _buildBudgetCard(Budget budget, BudgetProvider provider) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardBg = isDark ? AppColors.surfaceDark : AppColors.surface;
+    final hintColor = isDark ? AppColors.textHintDark : AppColors.textHint;
+    final textSec = isDark ? AppColors.textSecondaryDark : AppColors.textSecondary;
+
     final category = provider.getCategoryById(budget.categoryId);
     final pct = budget.percentage;
 
@@ -253,9 +259,13 @@ class _BudgetScreenState extends State<BudgetScreen> {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: cardBg,
           borderRadius: BorderRadius.circular(16),
-          boxShadow: AppColors.cardShadow,
+          boxShadow: AppColors.dynamicCardShadow(isDark),
+          border: Border.all(
+            color: isDark ? AppColors.borderDark : AppColors.borderLight,
+            width: 1.0,
+          ),
         ),
         child: Column(
           children: [
@@ -291,8 +301,8 @@ class _BudgetScreenState extends State<BudgetScreen> {
                       ),
                       Text(
                         budget.periodName,
-                        style: const TextStyle(
-                          color: AppColors.textHint,
+                        style: TextStyle(
+                          color: hintColor,
                           fontSize: 12,
                         ),
                       ),
@@ -338,8 +348,8 @@ class _BudgetScreenState extends State<BudgetScreen> {
                 Flexible(
                   child: Text(
                     '/ ${CurrencyFormatter.format(budget.limit)}',
-                    style: const TextStyle(
-                      color: AppColors.textHint,
+                    style: TextStyle(
+                      color: hintColor,
                       fontSize: 13,
                     ),
                     textAlign: TextAlign.right,
@@ -364,8 +374,8 @@ class _BudgetScreenState extends State<BudgetScreen> {
               alignment: Alignment.centerRight,
               child: Text(
                 'Còn lại: ${CurrencyFormatter.format(budget.remaining.clamp(0, double.infinity))}',
-                style: const TextStyle(
-                  color: AppColors.textSecondary,
+                style: TextStyle(
+                  color: textSec,
                   fontSize: 12,
                 ),
                 maxLines: 1,

@@ -28,6 +28,7 @@ class _CurrencySettingsScreenState extends State<CurrencySettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final provider = context.watch<CurrencyProvider>();
     final entries = provider.currencies.entries.where((entry) {
       final text = '${entry.key} ${entry.value}'.toLowerCase();
@@ -35,7 +36,7 @@ class _CurrencySettingsScreenState extends State<CurrencySettingsScreen> {
     }).toList();
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: isDark ? AppColors.backgroundDark : AppColors.background,
       appBar: AppBar(
         title: const Text('Đơn vị tiền tệ'),
         actions: [
@@ -75,15 +76,18 @@ class _CurrencySettingsScreenState extends State<CurrencySettingsScreen> {
                 final entry = entries[index];
                 final isSelected = entry.key == provider.selectedCurrency;
                 final rate = provider.ratesFromVnd[entry.key];
+                final primaryColor = isDark ? AppColors.accent : AppColors.primary;
+                final primarySurfaceColor = isDark ? AppColors.primarySurfaceDark : AppColors.primarySurface;
+
                 return ListTile(
                   leading: CircleAvatar(
                     backgroundColor: isSelected
-                        ? AppColors.primary
-                        : AppColors.primarySurface,
+                        ? primaryColor
+                        : primarySurfaceColor,
                     child: Text(
                       CurrencySymbols.symbolFor(entry.key),
                       style: TextStyle(
-                        color: isSelected ? Colors.white : AppColors.primary,
+                        color: isSelected ? Colors.white : primaryColor,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
@@ -95,7 +99,7 @@ class _CurrencySettingsScreenState extends State<CurrencySettingsScreen> {
                         : '1 VND = ${rate.toStringAsPrecision(4)} ${entry.key}',
                   ),
                   trailing: isSelected
-                      ? const Icon(Icons.check_circle, color: AppColors.primary)
+                      ? Icon(Icons.check_circle, color: primaryColor)
                       : null,
                   onTap: rate == null
                       ? null
@@ -116,14 +120,19 @@ class _CurrencySettingsScreenState extends State<CurrencySettingsScreen> {
   }
 
   Widget _buildSummary(CurrencyProvider provider) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        gradient: AppColors.primaryGradient,
+        gradient: isDark ? AppColors.cardGradientDark : AppColors.primaryGradient,
         borderRadius: BorderRadius.circular(18),
-        boxShadow: AppColors.elevatedShadow,
+        boxShadow: AppColors.dynamicElevatedShadow(isDark),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: isDark ? 0.05 : 0.15),
+          width: 1.5,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

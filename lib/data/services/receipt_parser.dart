@@ -22,7 +22,9 @@ class ReceiptParser {
 
     final amount = _extractLargestAmount(rawText);
     final merchant = lines.isEmpty ? 'Hóa đơn' : lines.first;
-    final note = amount > 0 ? 'OCR: $merchant' : 'OCR: $merchant - cần nhập số tiền';
+    final note = amount > 0
+        ? 'OCR: $merchant'
+        : 'OCR: $merchant - cần nhập số tiền';
 
     return ReceiptDraft(
       amount: amount,

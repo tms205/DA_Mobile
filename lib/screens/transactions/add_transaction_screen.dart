@@ -1,11 +1,12 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_strings.dart';
 import '../../core/utils/formatters.dart';
+import '../../core/utils/input_formatters.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../data/models/transaction_model.dart';
 import '../../data/models/category_model.dart';
 import '../../data/models/account_model.dart';
@@ -14,6 +15,7 @@ import '../../providers/transaction_provider.dart';
 import '../../providers/category_provider.dart';
 import '../../providers/account_provider.dart';
 import '../../providers/budget_provider.dart';
+import '../categories/add_category_screen.dart';
 
 class AddTransactionScreen extends StatefulWidget {
   final TransactionType? initialType;
@@ -155,14 +157,15 @@ class _AddTransactionScreenState extends State<AddTransactionScreen>
   @override
   Widget build(BuildContext context) {
     final isEditing = widget.existingTransaction != null;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: isDark ? AppColors.backgroundDark : AppColors.background,
       appBar: AppBar(
         title: Text(
           isEditing ? AppStrings.editTransaction : AppStrings.addTransaction,
         ),
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
+        backgroundColor: isDark ? AppColors.surfaceDark : AppColors.primary,
+        foregroundColor: isDark ? AppColors.textPrimaryDark : Colors.white,
         elevation: 0,
         actions: [
           if (isEditing)
@@ -215,18 +218,18 @@ class _AddTransactionScreenState extends State<AddTransactionScreen>
   }
 
   Widget _buildTypeTabBar() {
-    final colors = [AppColors.income, AppColors.expense, AppColors.info];
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final labels = ['Thu nhập', 'Chi tiêu', 'Chuyển khoản'];
     final icons = [Icons.arrow_upward, Icons.arrow_downward, Icons.swap_horiz];
 
     return Container(
-      color: AppColors.primary,
+      color: isDark ? AppColors.surfaceDark : AppColors.primary,
       child: TabBar(
         controller: _tabController,
-        indicatorColor: Colors.white,
+        indicatorColor: isDark ? AppColors.accent : Colors.white,
         indicatorWeight: 3,
-        labelColor: Colors.white,
-        unselectedLabelColor: Colors.white54,
+        labelColor: isDark ? AppColors.accent : Colors.white,
+        unselectedLabelColor: isDark ? AppColors.textHintDark : Colors.white54,
         tabs: List.generate(
           3,
           (i) => Tab(
@@ -236,10 +239,16 @@ class _AddTransactionScreenState extends State<AddTransactionScreen>
                 Icon(
                   icons[i],
                   size: 16,
-                  color: _tabController.index == i ? colors[i] : Colors.white54,
                 ),
                 const SizedBox(width: 6),
-                Text(labels[i], style: const TextStyle(fontSize: 13)),
+                Flexible(
+                  child: Text(
+                    labels[i],
+                    style: const TextStyle(fontSize: 13),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                  ),
+                ),
               ],
             ),
           ),
@@ -249,6 +258,8 @@ class _AddTransactionScreenState extends State<AddTransactionScreen>
   }
 
   Widget _buildAmountField() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardBg = isDark ? AppColors.surfaceDark : AppColors.surface;
     final color = _selectedType == TransactionType.income
         ? AppColors.income
         : _selectedType == TransactionType.expense
@@ -258,9 +269,13 @@ class _AddTransactionScreenState extends State<AddTransactionScreen>
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: cardBg,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: AppColors.cardShadow,
+        boxShadow: AppColors.dynamicCardShadow(isDark),
+        border: Border.all(
+          color: isDark ? AppColors.borderDark : AppColors.borderLight,
+          width: 1.0,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -275,7 +290,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen>
             children: [
               Text(
                 CurrencyFormatter.inputSuffix(),
-                style: TextStyle(
+                style: GoogleFonts.outfit(
                   fontSize: 28,
                   fontWeight: FontWeight.w700,
                   color: color,
@@ -289,15 +304,19 @@ class _AddTransactionScreenState extends State<AddTransactionScreen>
                     decimal: true,
                   ),
                   inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
+                    ThousandsSeparatorInputFormatter(),
                   ],
-                  style: TextStyle(
+                  style: GoogleFonts.outfit(
                     fontSize: 28,
                     fontWeight: FontWeight.w700,
                     color: color,
                   ),
                   decoration: const InputDecoration(
                     border: InputBorder.none,
+                    enabledBorder: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                    errorBorder: InputBorder.none,
+                    focusedErrorBorder: InputBorder.none,
                     hintText: '0',
                     filled: false,
                     contentPadding: EdgeInsets.zero,
@@ -324,6 +343,11 @@ class _AddTransactionScreenState extends State<AddTransactionScreen>
     if (_selectedType == TransactionType.transfer) {
       return const SizedBox.shrink();
     }
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final surfaceVariantColor = isDark ? AppColors.surfaceVariantDark : AppColors.surfaceVariant;
+    final textSecColor = isDark ? AppColors.textSecondaryDark : AppColors.textSecondary;
+    final primaryColor = isDark ? AppColors.accent : AppColors.primary;
+
     return Consumer<CategoryProvider>(
       builder: (context, provider, _) {
         final cats = _selectedType == TransactionType.income
@@ -331,88 +355,141 @@ class _AddTransactionScreenState extends State<AddTransactionScreen>
             : provider.expenseCategories;
         return _buildCard(
           label: AppStrings.category,
-          child: cats.isEmpty
-              ? const Text(
-                  'Đang tải...',
-                  style: TextStyle(color: AppColors.textHint),
-                )
-              : Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (_categorySuggestion != null &&
+                  _selectedCategory?.id ==
+                      _categorySuggestion!.categoryId)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: _buildAiSuggestionBanner(),
+                ),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
                   children: [
-                    if (_categorySuggestion != null &&
-                        _selectedCategory?.id ==
-                            _categorySuggestion!.categoryId)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 10),
-                        child: _buildAiSuggestionBanner(),
-                      ),
-                    SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        children: cats.map((cat) {
-                          final isSelected = _selectedCategory?.id == cat.id;
-                          return GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                _selectedCategory = cat;
-                                _categorySuggestion = null;
-                              });
-                            },
-                            child: AnimatedContainer(
-                              duration: const Duration(milliseconds: 200),
-                              margin: const EdgeInsets.only(right: 8),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 8,
+                    ...cats.map((cat) {
+                      final isSelected = _selectedCategory?.id == cat.id;
+                      return GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _selectedCategory = cat;
+                            _categorySuggestion = null;
+                          });
+                        },
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          margin: const EdgeInsets.only(right: 8),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
+                          ),
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? cat.colorValue.withValues(alpha: 0.15)
+                                : surfaceVariantColor,
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                              color: isSelected
+                                  ? cat.colorValue
+                                  : Colors.transparent,
+                              width: 1.5,
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                cat.iconData,
+                                size: 18,
+                                color: cat.colorValue,
                               ),
-                              decoration: BoxDecoration(
-                                color: isSelected
-                                    ? cat.colorValue.withValues(alpha: 0.15)
-                                    : AppColors.surfaceVariant,
-                                borderRadius: BorderRadius.circular(20),
-                                border: Border.all(
+                              const SizedBox(width: 6),
+                              Text(
+                                cat.name,
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: isSelected
+                                      ? FontWeight.w600
+                                      : FontWeight.w400,
                                   color: isSelected
                                       ? cat.colorValue
-                                      : Colors.transparent,
-                                  width: 1.5,
+                                      : textSecColor,
                                 ),
                               ),
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    cat.iconData,
-                                    size: 18,
-                                    color: cat.colorValue,
-                                  ),
-                                  const SizedBox(width: 6),
-                                  Text(
-                                    cat.name,
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontWeight: isSelected
-                                          ? FontWeight.w600
-                                          : FontWeight.w400,
-                                      color: isSelected
-                                          ? cat.colorValue
-                                          : AppColors.textSecondary,
-                                    ),
-                                  ),
-                                ],
+                            ],
+                          ),
+                        ),
+                      );
+                    }),
+                    GestureDetector(
+                      onTap: _addNewCategory,
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color: surfaceVariantColor,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: primaryColor.withValues(alpha: 0.5),
+                            width: 1.0,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.add_circle_outline,
+                              size: 18,
+                              color: primaryColor,
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              'Thêm mới',
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: primaryColor,
                               ),
                             ),
-                          );
-                        }).toList(),
+                          ],
+                        ),
                       ),
                     ),
                   ],
                 ),
+              ),
+            ],
+          ),
         );
       },
     );
   }
 
+  Future<void> _addNewCategory() async {
+    final isIncome = _selectedType == TransactionType.income;
+    final newCategory = await Navigator.push<Category>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => AddCategoryScreen(isIncome: isIncome),
+      ),
+    );
+
+    if (newCategory != null && mounted) {
+      setState(() {
+        _selectedCategory = newCategory;
+        _categorySuggestion = null;
+      });
+    }
+  }
+
   Widget _buildAiSuggestionBanner() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textSecColor = isDark ? AppColors.textSecondaryDark : AppColors.textSecondary;
     final suggestion = _categorySuggestion!;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
@@ -427,8 +504,8 @@ class _AddTransactionScreenState extends State<AddTransactionScreen>
           Expanded(
             child: Text(
               'AI gợi ý danh mục (${(suggestion.confidence * 100).toStringAsFixed(0)}%) - ${suggestion.reason}',
-              style: const TextStyle(
-                color: AppColors.textSecondary,
+              style: TextStyle(
+                color: textSecColor,
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
               ),
@@ -476,6 +553,11 @@ class _AddTransactionScreenState extends State<AddTransactionScreen>
   }
 
   Widget _buildDatePicker() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryColor = isDark ? AppColors.accent : AppColors.primary;
+    final textPriColor = isDark ? AppColors.textPrimaryDark : AppColors.textPrimary;
+    final hintColor = isDark ? AppColors.textHintDark : AppColors.textHint;
+
     return _buildCard(
       label: AppStrings.date,
       child: InkWell(
@@ -483,22 +565,22 @@ class _AddTransactionScreenState extends State<AddTransactionScreen>
         borderRadius: BorderRadius.circular(8),
         child: Row(
           children: [
-            const Icon(
+            Icon(
               Icons.calendar_today,
-              color: AppColors.primary,
+              color: primaryColor,
               size: 20,
             ),
             const SizedBox(width: 10),
             Text(
               DateFormatter.formatDate(_selectedDate),
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w500,
-                color: AppColors.textPrimary,
+                color: textPriColor,
               ),
             ),
             const Spacer(),
-            const Icon(Icons.chevron_right, color: AppColors.textHint),
+            Icon(Icons.chevron_right, color: hintColor),
           ],
         ),
       ),
@@ -524,6 +606,10 @@ class _AddTransactionScreenState extends State<AddTransactionScreen>
             decoration: const InputDecoration(
               hintText: 'Thêm ghi chú...',
               border: InputBorder.none,
+              enabledBorder: InputBorder.none,
+              focusedBorder: InputBorder.none,
+              errorBorder: InputBorder.none,
+              focusedErrorBorder: InputBorder.none,
               filled: false,
               contentPadding: EdgeInsets.zero,
             ),
@@ -601,20 +687,24 @@ class _AddTransactionScreenState extends State<AddTransactionScreen>
   }
 
   Widget _buildReceiptInfo() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryColor = isDark ? AppColors.accent : AppColors.primary;
+    final textSecColor = isDark ? AppColors.textSecondaryDark : AppColors.textSecondary;
+
     return _buildCard(
       label: 'Hóa đơn đính kèm',
       child: Row(
         children: [
-          const Icon(Icons.image_outlined, color: AppColors.primary, size: 20),
+          Icon(Icons.image_outlined, color: primaryColor, size: 20),
           const SizedBox(width: 10),
           Expanded(
             child: Text(
               _receiptImagePath!,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 13,
-                color: AppColors.textSecondary,
+                color: textSecColor,
               ),
             ),
           ),
@@ -629,18 +719,29 @@ class _AddTransactionScreenState extends State<AddTransactionScreen>
   }
 
   Widget _buildRecurringSection() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardBg = isDark ? AppColors.surfaceDark : AppColors.surface;
+    final primaryColor = isDark ? AppColors.accent : AppColors.primary;
+    final primarySurfaceColor = isDark ? AppColors.primarySurfaceDark : AppColors.primarySurface;
+    final surfaceVariantColor = isDark ? AppColors.surfaceVariantDark : AppColors.surfaceVariant;
+    final textSecColor = isDark ? AppColors.textSecondaryDark : AppColors.textSecondary;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: cardBg,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: AppColors.cardShadow,
+        boxShadow: AppColors.dynamicCardShadow(isDark),
+        border: Border.all(
+          color: isDark ? AppColors.borderDark : AppColors.borderLight,
+          width: 1.0,
+        ),
       ),
       child: Column(
         children: [
           Row(
             children: [
-              const Icon(Icons.repeat, color: AppColors.primary, size: 20),
+              Icon(Icons.repeat, color: primaryColor, size: 20),
               const SizedBox(width: 10),
               const Expanded(
                 child: Text(
@@ -650,7 +751,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen>
               ),
               Switch(
                 value: _isRecurring,
-                activeThumbColor: AppColors.primary,
+                activeThumbColor: primaryColor,
                 onChanged: (v) => setState(() => _isRecurring = v),
               ),
             ],
@@ -674,12 +775,12 @@ class _AddTransactionScreenState extends State<AddTransactionScreen>
                       padding: const EdgeInsets.symmetric(vertical: 8),
                       decoration: BoxDecoration(
                         color: isSelected
-                            ? AppColors.primarySurface
-                            : AppColors.surfaceVariant,
+                            ? primarySurfaceColor
+                            : surfaceVariantColor,
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(
                           color: isSelected
-                              ? AppColors.primary
+                              ? primaryColor
                               : Colors.transparent,
                         ),
                       ),
@@ -692,8 +793,8 @@ class _AddTransactionScreenState extends State<AddTransactionScreen>
                               ? FontWeight.w600
                               : FontWeight.w400,
                           color: isSelected
-                              ? AppColors.primary
-                              : AppColors.textSecondary,
+                              ? primaryColor
+                              : textSecColor,
                         ),
                       ),
                     ),
@@ -733,22 +834,30 @@ class _AddTransactionScreenState extends State<AddTransactionScreen>
   }
 
   Widget _buildCard({required String label, required Widget child}) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardBg = isDark ? AppColors.surfaceDark : AppColors.surface;
+    final hintColor = isDark ? AppColors.textHintDark : AppColors.textHint;
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: cardBg,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: AppColors.cardShadow,
+        boxShadow: AppColors.dynamicCardShadow(isDark),
+        border: Border.all(
+          color: isDark ? AppColors.borderDark : AppColors.borderLight,
+          width: 1.0,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 12,
-              color: AppColors.textHint,
+              color: hintColor,
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -766,11 +875,16 @@ class _AddTransactionScreenState extends State<AddTransactionScreen>
     required void Function(T?) onChanged,
     required String hint,
   }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final hintColor = isDark ? AppColors.textHintDark : AppColors.textHint;
+    final dropdownBg = isDark ? AppColors.surfaceDark : AppColors.surface;
+
     return DropdownButton<T>(
       value: value,
       isExpanded: true,
       underline: const SizedBox.shrink(),
-      hint: Text(hint, style: const TextStyle(color: AppColors.textHint)),
+      dropdownColor: dropdownBg,
+      hint: Text(hint, style: TextStyle(color: hintColor)),
       items: items
           .map(
             (item) =>
@@ -782,6 +896,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen>
   }
 
   Future<void> _selectDate() async {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final picked = await showDatePicker(
       context: context,
       initialDate: _selectedDate,
@@ -789,7 +904,14 @@ class _AddTransactionScreenState extends State<AddTransactionScreen>
       lastDate: DateTime(2100),
       builder: (context, child) => Theme(
         data: Theme.of(context).copyWith(
-          colorScheme: const ColorScheme.light(primary: AppColors.primary),
+          colorScheme: isDark
+              ? ColorScheme.dark(
+                  primary: AppColors.accent,
+                  onPrimary: Colors.white,
+                  surface: AppColors.surfaceDark,
+                  onSurface: AppColors.textPrimaryDark,
+                )
+              : const ColorScheme.light(primary: AppColors.primary),
         ),
         child: child!,
       ),

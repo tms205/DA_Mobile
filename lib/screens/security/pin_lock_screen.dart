@@ -25,8 +25,9 @@ class _PinLockScreenState extends State<PinLockScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: isDark ? AppColors.backgroundDark : AppColors.background,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(24),
@@ -37,26 +38,30 @@ class _PinLockScreenState extends State<PinLockScreen> {
                 width: 72,
                 height: 72,
                 decoration: BoxDecoration(
-                  gradient: AppColors.primaryGradient,
+                  gradient: isDark ? AppColors.cardGradientDark : AppColors.primaryGradient,
                   borderRadius: BorderRadius.circular(22),
-                  boxShadow: AppColors.elevatedShadow,
+                  boxShadow: AppColors.dynamicElevatedShadow(isDark),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: isDark ? 0.05 : 0.15),
+                    width: 1.5,
+                  ),
                 ),
                 child: const Icon(Icons.lock_outline, color: Colors.white, size: 34),
               ),
               const SizedBox(height: 24),
-              const Text(
+              Text(
                 'Nhập mã PIN',
                 style: TextStyle(
                   fontSize: 26,
                   fontWeight: FontWeight.w800,
-                  color: AppColors.textPrimary,
+                  color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
                 ),
               ),
               const SizedBox(height: 8),
-              const Text(
+              Text(
                 'Mở khóa để truy cập dữ liệu tài chính của bạn',
                 textAlign: TextAlign.center,
-                style: TextStyle(color: AppColors.textSecondary),
+                style: TextStyle(color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary),
               ),
               const SizedBox(height: 28),
               TextField(
@@ -128,9 +133,12 @@ class _PinSettingsScreenState extends State<PinSettingsScreen> {
   @override
   Widget build(BuildContext context) {
     final security = context.watch<SecurityProvider>();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardBg = isDark ? AppColors.surfaceDark : AppColors.surface;
+    final primaryColor = isDark ? AppColors.accent : AppColors.primary;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: isDark ? AppColors.backgroundDark : AppColors.background,
       appBar: AppBar(title: const Text(AppStrings.security)),
       body: ListView(
         padding: const EdgeInsets.all(16),
@@ -138,15 +146,19 @@ class _PinSettingsScreenState extends State<PinSettingsScreen> {
           Container(
             padding: const EdgeInsets.all(18),
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: cardBg,
               borderRadius: BorderRadius.circular(16),
-              boxShadow: AppColors.cardShadow,
+              boxShadow: AppColors.dynamicCardShadow(isDark),
+              border: Border.all(
+                color: isDark ? AppColors.borderDark : AppColors.borderLight,
+                width: 1.0,
+              ),
             ),
             child: Row(
               children: [
                 Icon(
                   security.isPinEnabled ? Icons.lock : Icons.lock_open,
-                  color: AppColors.primary,
+                  color: primaryColor,
                 ),
                 const SizedBox(width: 12),
                 Expanded(

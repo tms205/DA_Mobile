@@ -11,6 +11,15 @@ class BudgetOverviewCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardBg = isDark ? AppColors.surfaceDark : AppColors.surface;
+    final hintColor = isDark ? AppColors.textHintDark : AppColors.textHint;
+    final textTitleStyle = TextStyle(
+      fontSize: 13,
+      fontWeight: FontWeight.w700,
+      color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
+    );
+
     return Consumer<BudgetProvider>(
       builder: (context, provider, _) {
         final activeBudgets = provider.activeBudgets.toList()
@@ -49,25 +58,33 @@ class BudgetOverviewCard extends StatelessWidget {
             if (budgets.isEmpty)
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: AppColors.surface,
+                  color: cardBg,
                   borderRadius: BorderRadius.circular(16),
-                  boxShadow: AppColors.cardShadow,
+                  boxShadow: AppColors.dynamicCardShadow(isDark),
+                  border: Border.all(
+                    color: isDark ? AppColors.borderDark : AppColors.borderLight,
+                    width: 1.0,
+                  ),
                 ),
-                child: const Text(
+                child: Text(
                   'Chưa có ngân sách nào.\nThêm ngân sách để theo dõi chi tiêu.',
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: AppColors.textHint, height: 1.5),
+                  style: TextStyle(color: hintColor, height: 1.5, fontSize: 13),
                 ),
               )
             else
               Container(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
                 decoration: BoxDecoration(
-                  color: AppColors.surface,
+                  color: cardBg,
                   borderRadius: BorderRadius.circular(16),
-                  boxShadow: AppColors.cardShadow,
+                  boxShadow: AppColors.dynamicCardShadow(isDark),
+                  border: Border.all(
+                    color: isDark ? AppColors.borderDark : AppColors.borderLight,
+                    width: 1.0,
+                  ),
                 ),
                 child: Column(
                   children:
@@ -94,20 +111,17 @@ class BudgetOverviewCard extends StatelessWidget {
                                   Row(
                                     children: [
                                       Icon(
-                                        cat?.iconData ?? Icons.category,
+                                        cat?.iconData ?? Icons.category_rounded,
                                         size: 16,
                                         color:
                                             cat?.colorValue ??
                                             AppColors.primary,
                                       ),
-                                      const SizedBox(width: 6),
+                                      const SizedBox(width: 8),
                                       Expanded(
                                         child: Text(
                                           cat?.name ?? 'Danh mục',
-                                          style: const TextStyle(
-                                            fontSize: 13,
-                                            fontWeight: FontWeight.w500,
-                                          ),
+                                          style: textTitleStyle,
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
                                         ),
@@ -116,9 +130,10 @@ class BudgetOverviewCard extends StatelessWidget {
                                       Flexible(
                                         child: Text(
                                           '${CurrencyFormatter.compact(budget.spent)} / ${CurrencyFormatter.compact(budget.limit)}',
-                                          style: const TextStyle(
+                                          style: TextStyle(
                                             fontSize: 12,
-                                            color: AppColors.textHint,
+                                            color: hintColor,
+                                            fontWeight: FontWeight.w500,
                                           ),
                                           textAlign: TextAlign.right,
                                           maxLines: 1,
@@ -127,12 +142,12 @@ class BudgetOverviewCard extends StatelessWidget {
                                       ),
                                     ],
                                   ),
-                                  const SizedBox(height: 6),
+                                  const SizedBox(height: 8),
                                   ClipRRect(
                                     borderRadius: BorderRadius.circular(6),
                                     child: LinearProgressIndicator(
                                       value: pct,
-                                      minHeight: 7,
+                                      minHeight: 6,
                                       backgroundColor: progressColor.withValues(
                                         alpha: 0.1,
                                       ),
@@ -143,23 +158,25 @@ class BudgetOverviewCard extends StatelessWidget {
                                   ),
                                   if (budget.isExceeded)
                                     Padding(
-                                      padding: const EdgeInsets.only(top: 4),
+                                      padding: const EdgeInsets.only(top: 6),
                                       child: Text(
                                         AppStrings.budgetExceeded,
                                         style: const TextStyle(
                                           fontSize: 11,
                                           color: AppColors.expense,
+                                          fontWeight: FontWeight.w600,
                                         ),
                                       ),
                                     ),
                                   if (budget.isWarning)
                                     Padding(
-                                      padding: const EdgeInsets.only(top: 4),
+                                      padding: const EdgeInsets.only(top: 6),
                                       child: Text(
                                         AppStrings.budgetWarning,
                                         style: const TextStyle(
                                           fontSize: 11,
                                           color: AppColors.warning,
+                                          fontWeight: FontWeight.w600,
                                         ),
                                       ),
                                     ),
@@ -202,23 +219,27 @@ class _BudgetSummary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final progressColor = progress >= 1
         ? AppColors.expense
         : progress >= 0.8
         ? AppColors.warning
         : AppColors.income;
+    final dividerColor = isDark ? AppColors.dividerDark : AppColors.dividerLight;
+    final hintColor = isDark ? AppColors.textHintDark : AppColors.textHint;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
-            Expanded(child: _summaryItem('Hạn mức', limit, AppColors.primary)),
+            Expanded(child: _summaryItem(context, 'Hạn mức', limit, isDark ? AppColors.accent : AppColors.primary)),
             const SizedBox(width: 10),
-            Expanded(child: _summaryItem('Đã chi', spent, AppColors.expense)),
+            Expanded(child: _summaryItem(context, 'Đã chi', spent, AppColors.expense)),
             const SizedBox(width: 10),
             Expanded(
               child: _summaryItem(
+                context,
                 'Còn lại',
                 remaining,
                 remaining < 0 ? AppColors.expense : AppColors.income,
@@ -236,28 +257,30 @@ class _BudgetSummary extends StatelessWidget {
             valueColor: AlwaysStoppedAnimation(progressColor),
           ),
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 6),
         Text(
           '${(progress * 100).toStringAsFixed(1)}% đã sử dụng',
-          style: const TextStyle(fontSize: 11, color: AppColors.textHint),
+          style: TextStyle(fontSize: 11, color: hintColor, fontWeight: FontWeight.w500),
         ),
         const SizedBox(height: 2),
-        const Divider(height: 18),
+        Divider(height: 18, color: dividerColor),
       ],
     );
   }
 
-  Widget _summaryItem(String label, double amount, Color color) {
+  Widget _summaryItem(BuildContext context, String label, double amount, Color color) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final hintColor = isDark ? AppColors.textHintDark : AppColors.textHint;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           label,
-          style: const TextStyle(fontSize: 11, color: AppColors.textHint),
+          style: TextStyle(fontSize: 11, color: hintColor, fontWeight: FontWeight.w500),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
-        const SizedBox(height: 3),
+        const SizedBox(height: 4),
         Text(
           CurrencyFormatter.compact(amount),
           style: TextStyle(

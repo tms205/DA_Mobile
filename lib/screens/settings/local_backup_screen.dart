@@ -30,8 +30,9 @@ class _LocalBackupScreenState extends State<LocalBackupScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: isDark ? AppColors.backgroundDark : AppColors.background,
       appBar: AppBar(title: const Text('Sao lưu dữ liệu')),
       body: ListView(
         padding: const EdgeInsets.all(16),
@@ -61,12 +62,17 @@ class _LocalBackupScreenState extends State<LocalBackupScreen> {
   }
 
   Widget _buildStatusCard() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        gradient: AppColors.primaryGradient,
+        gradient: isDark ? AppColors.cardGradientDark : AppColors.primaryGradient,
         borderRadius: BorderRadius.circular(18),
-        boxShadow: AppColors.elevatedShadow,
+        boxShadow: AppColors.dynamicElevatedShadow(isDark),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: isDark ? 0.05 : 0.15),
+          width: 1.5,
+        ),
       ),
       child: Row(
         children: [
@@ -106,23 +112,32 @@ class _LocalBackupScreenState extends State<LocalBackupScreen> {
   }
 
   Widget _buildInfoCard() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardBg = isDark ? AppColors.surfaceDark : AppColors.surface;
+    final primaryColor = isDark ? AppColors.accent : AppColors.primary;
+    final textSecColor = isDark ? AppColors.textSecondaryDark : AppColors.textSecondary;
+
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: cardBg,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: AppColors.cardShadow,
+        boxShadow: AppColors.dynamicCardShadow(isDark),
+        border: Border.all(
+          color: isDark ? AppColors.borderDark : AppColors.borderLight,
+          width: 1.0,
+        ),
       ),
-      child: const Row(
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: AppColors.primary),
-          SizedBox(width: 10),
+          Icon(Icons.info_outline, color: primaryColor),
+          const SizedBox(width: 10),
           Expanded(
             child: Text(
               'Dữ liệu sao lưu nằm trong bộ nhớ cục bộ của ứng dụng. '
               'Nếu gỡ ứng dụng hoặc xóa dữ liệu app, bản sao lưu này cũng sẽ mất.',
-              style: TextStyle(fontSize: 12, color: AppColors.textSecondary, height: 1.45),
+              style: TextStyle(fontSize: 12, color: textSecColor, height: 1.45),
             ),
           ),
         ],
@@ -137,12 +152,22 @@ class _LocalBackupScreenState extends State<LocalBackupScreen> {
     required String buttonLabel,
     required Future<void> Function() onPressed,
   }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardBg = isDark ? AppColors.surfaceDark : AppColors.surface;
+    final primaryColor = isDark ? AppColors.accent : AppColors.primary;
+    final primarySurfaceColor = isDark ? AppColors.primarySurfaceDark : AppColors.primarySurface;
+    final hintColor = isDark ? AppColors.textHintDark : AppColors.textHint;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: cardBg,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: AppColors.cardShadow,
+        boxShadow: AppColors.dynamicCardShadow(isDark),
+        border: Border.all(
+          color: isDark ? AppColors.borderDark : AppColors.borderLight,
+          width: 1.0,
+        ),
       ),
       child: Row(
         children: [
@@ -150,10 +175,10 @@ class _LocalBackupScreenState extends State<LocalBackupScreen> {
             width: 44,
             height: 44,
             decoration: BoxDecoration(
-              color: AppColors.primarySurface,
+              color: primarySurfaceColor,
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(icon, color: AppColors.primary),
+            child: Icon(icon, color: primaryColor),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -164,7 +189,7 @@ class _LocalBackupScreenState extends State<LocalBackupScreen> {
                 const SizedBox(height: 4),
                 Text(
                   subtitle,
-                  style: const TextStyle(fontSize: 12, color: AppColors.textHint),
+                  style: TextStyle(fontSize: 12, color: hintColor),
                 ),
                 const SizedBox(height: 10),
                 Align(

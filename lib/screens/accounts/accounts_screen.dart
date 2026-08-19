@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_strings.dart';
@@ -25,8 +25,9 @@ class _AccountsScreenState extends State<AccountsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: isDark ? AppColors.backgroundDark : AppColors.background,
       appBar: AppBar(title: const Text(AppStrings.accounts)),
       body: Consumer<AccountProvider>(
         builder: (context, provider, _) {
@@ -67,12 +68,17 @@ class _AccountsScreenState extends State<AccountsScreen> {
   }
 
   Widget _buildTotalCard(AccountProvider provider) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        gradient: AppColors.cardGradient,
+        gradient: isDark ? AppColors.cardGradientDark : AppColors.cardGradient,
         borderRadius: BorderRadius.circular(24),
-        boxShadow: AppColors.elevatedShadow,
+        boxShadow: AppColors.dynamicElevatedShadow(isDark),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: isDark ? 0.05 : 0.15),
+          width: 1.5,
+        ),
       ),
       child: Column(children: [
         const Text('Tổng số dư', style: TextStyle(color: Colors.white70, fontSize: 14)),
@@ -126,12 +132,20 @@ class _AccountsScreenState extends State<AccountsScreen> {
     required String value,
     required Color color,
   }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardBg = isDark ? AppColors.surfaceDark : AppColors.surface;
+    final hintColor = isDark ? AppColors.textHintDark : AppColors.textHint;
+
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: cardBg,
         borderRadius: BorderRadius.circular(14),
-        boxShadow: AppColors.cardShadow,
+        boxShadow: AppColors.dynamicCardShadow(isDark),
+        border: Border.all(
+          color: isDark ? AppColors.borderDark : AppColors.borderLight,
+          width: 1.0,
+        ),
       ),
       child: Row(
         children: [
@@ -150,7 +164,7 @@ class _AccountsScreenState extends State<AccountsScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(label,
-                    style: const TextStyle(fontSize: 12, color: AppColors.textHint)),
+                    style: TextStyle(fontSize: 12, color: hintColor)),
                 const SizedBox(height: 2),
                 Text(
                   value,
@@ -169,11 +183,14 @@ class _AccountsScreenState extends State<AccountsScreen> {
   Widget _buildAccountGroup(String title, AccountType type, AccountProvider provider) {
     final accounts = provider.accounts.where((a) => a.type == type).toList();
     if (accounts.isEmpty) return const SizedBox.shrink();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textSecColor = isDark ? AppColors.textSecondaryDark : AppColors.textSecondary;
+
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Padding(
         padding: const EdgeInsets.symmetric(vertical: 8),
         child: Text(title,
-            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textSecondary)),
+            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: textSecColor)),
       ),
       ...accounts.map((acc) => Padding(
             padding: const EdgeInsets.only(bottom: 10),
@@ -184,6 +201,13 @@ class _AccountsScreenState extends State<AccountsScreen> {
   }
 
   Widget _buildAccountCard(Account account) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardBg = isDark ? AppColors.surfaceDark : AppColors.surface;
+    final hintColor = isDark ? AppColors.textHintDark : AppColors.textHint;
+    final textPriColor = isDark ? AppColors.textPrimaryDark : AppColors.textPrimary;
+    final primaryColor = isDark ? AppColors.accent : AppColors.primary;
+    final primarySurfaceColor = isDark ? AppColors.primarySurfaceDark : AppColors.primarySurface;
+
     return GestureDetector(
       onTap: () async {
         await Navigator.push(
@@ -196,9 +220,13 @@ class _AccountsScreenState extends State<AccountsScreen> {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: cardBg,
           borderRadius: BorderRadius.circular(16),
-          boxShadow: AppColors.cardShadow,
+          boxShadow: AppColors.dynamicCardShadow(isDark),
+          border: Border.all(
+            color: isDark ? AppColors.borderDark : AppColors.borderLight,
+            width: 1.0,
+          ),
         ),
         child: Row(children: [
           Container(
@@ -221,17 +249,17 @@ class _AccountsScreenState extends State<AccountsScreen> {
                   style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
               const SizedBox(height: 2),
               Text(account.typeName,
-                  style: const TextStyle(color: AppColors.textHint, fontSize: 12)),
+                  style: TextStyle(color: hintColor, fontSize: 12)),
               if (account.isDefault)
                 Container(
                   margin: const EdgeInsets.only(top: 4),
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                   decoration: BoxDecoration(
-                    color: AppColors.primarySurface,
+                    color: primarySurfaceColor,
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: const Text('Mặc định',
-                      style: TextStyle(fontSize: 10, color: AppColors.primary, fontWeight: FontWeight.w600)),
+                  child: Text('Mặc định',
+                      style: TextStyle(fontSize: 10, color: primaryColor, fontWeight: FontWeight.w600)),
                 ),
             ]),
           ),
@@ -241,11 +269,11 @@ class _AccountsScreenState extends State<AccountsScreen> {
               style: TextStyle(
                 fontWeight: FontWeight.w700,
                 fontSize: 16,
-                color: account.balance >= 0 ? AppColors.textPrimary : AppColors.expense,
+                color: account.balance >= 0 ? textPriColor : AppColors.expense,
               ),
             ),
             const SizedBox(height: 4),
-            const Icon(Icons.chevron_right, color: AppColors.textHint, size: 18),
+            Icon(Icons.chevron_right, color: hintColor, size: 18),
           ]),
         ]),
       ),

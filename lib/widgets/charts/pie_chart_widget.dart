@@ -21,8 +21,9 @@ class _PieChartWidgetState extends State<PieChartWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     if (widget.dataMap.isEmpty) {
-      return const Center(child: Text('Chưa có dữ liệu', style: TextStyle(color: AppColors.textHint)));
+      return Center(child: Text('Chưa có dữ liệu', style: TextStyle(color: AppColors.hint(isDark))));
     }
 
     final entries = widget.dataMap.entries.toList();
@@ -88,7 +89,7 @@ class _PieChartWidgetState extends State<PieChartWidget> {
                 const SizedBox(width: 6),
                 Expanded(
                   child: Text('${e.key} (${pct.toStringAsFixed(0)}%)',
-                      style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                      style: TextStyle(fontSize: 11, color: AppColors.txtSec(isDark)),
                       maxLines: 1, overflow: TextOverflow.ellipsis),
                 ),
               ]),

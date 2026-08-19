@@ -27,7 +27,7 @@ class CurrencyRatesSnapshot {
 class CurrencyService {
   CurrencyService({http.Client? client}) : _client = client ?? http.Client();
 
-  static const _apiBase = 'https://api.frankfurter.dev/v2';
+  static const _apiBase = 'https://api.frankfurter.dev/v2';//api lấy tỉ giá tiền tệ
   final http.Client _client;
 
   Future<List<CurrencyCatalogItem>> fetchCurrencies() async {

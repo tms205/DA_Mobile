@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
 
 class EmptyState extends StatelessWidget {
@@ -17,6 +17,7 @@ class EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 40),
       child: Column(
@@ -26,18 +27,18 @@ class EmptyState extends StatelessWidget {
             width: 80,
             height: 80,
             decoration: BoxDecoration(
-              color: AppColors.primarySurface,
+              color: AppColors.pSf(isDark),
               shape: BoxShape.circle,
             ),
-            child: Icon(icon, size: 38, color: AppColors.primary.withValues(alpha: 0.6)),
+            child: Icon(icon, size: 38, color: AppColors.pc(isDark).withValues(alpha: 0.6)),
           ),
           const SizedBox(height: 16),
           Text(
             message,
             textAlign: TextAlign.center,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 15,
-              color: AppColors.textSecondary,
+              color: AppColors.txtSec(isDark),
               fontWeight: FontWeight.w400,
             ),
           ),

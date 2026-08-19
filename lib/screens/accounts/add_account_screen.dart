@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_strings.dart';
 import '../../core/utils/formatters.dart';
+import '../../core/utils/input_formatters.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../data/models/account_model.dart';
 import '../../providers/account_provider.dart';
 
@@ -58,8 +59,9 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
   @override
   Widget build(BuildContext context) {
     final isEditing = widget.existingAccount != null;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: isDark ? AppColors.backgroundDark : AppColors.background,
       appBar: AppBar(
         title: Text(isEditing ? AppStrings.editAccount : AppStrings.addAccount),
         actions: [
@@ -112,21 +114,29 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
   }
 
   Widget _buildNameField() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardBg = isDark ? AppColors.surfaceDark : AppColors.surface;
+    final hintColor = isDark ? AppColors.textHintDark : AppColors.textHint;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: cardBg,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: AppColors.cardShadow,
+        boxShadow: AppColors.dynamicCardShadow(isDark),
+        border: Border.all(
+          color: isDark ? AppColors.borderDark : AppColors.borderLight,
+          width: 1.0,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             AppStrings.accountName,
             style: TextStyle(
               fontSize: 12,
-              color: AppColors.textHint,
+              color: hintColor,
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -154,21 +164,30 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
   }
 
   Widget _buildBalanceField() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardBg = isDark ? AppColors.surfaceDark : AppColors.surface;
+    final hintColor = isDark ? AppColors.textHintDark : AppColors.textHint;
+    final primaryColor = isDark ? AppColors.accent : AppColors.primary;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: cardBg,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: AppColors.cardShadow,
+        boxShadow: AppColors.dynamicCardShadow(isDark),
+        border: Border.all(
+          color: isDark ? AppColors.borderDark : AppColors.borderLight,
+          width: 1.0,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             AppStrings.initialBalance,
             style: TextStyle(
               fontSize: 12,
-              color: AppColors.textHint,
+              color: hintColor,
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -177,10 +196,10 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
             children: [
               Text(
                 CurrencyFormatter.inputSuffix(),
-                style: const TextStyle(
+                style: GoogleFonts.outfit(
                   fontSize: 22,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.primary,
+                  color: primaryColor,
                 ),
               ),
               const SizedBox(width: 8),
@@ -191,12 +210,12 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
                     decimal: true,
                   ),
                   inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
+                    ThousandsSeparatorInputFormatter(),
                   ],
-                  style: const TextStyle(
+                  style: GoogleFonts.outfit(
                     fontSize: 22,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.primary,
+                    color: primaryColor,
                   ),
                   decoration: const InputDecoration(
                     border: InputBorder.none,
@@ -214,6 +233,14 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
   }
 
   Widget _buildTypeSelector() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardBg = isDark ? AppColors.surfaceDark : AppColors.surface;
+    final hintColor = isDark ? AppColors.textHintDark : AppColors.textHint;
+    final primaryColor = isDark ? AppColors.accent : AppColors.primary;
+    final primarySurfaceColor = isDark ? AppColors.primarySurfaceDark : AppColors.primarySurface;
+    final surfaceVariantColor = isDark ? AppColors.surfaceVariantDark : AppColors.surfaceVariant;
+    final textSecColor = isDark ? AppColors.textSecondaryDark : AppColors.textSecondary;
+
     final types = [
       {
         'type': AccountType.cash,
@@ -239,18 +266,22 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: cardBg,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: AppColors.cardShadow,
+        boxShadow: AppColors.dynamicCardShadow(isDark),
+        border: Border.all(
+          color: isDark ? AppColors.borderDark : AppColors.borderLight,
+          width: 1.0,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             AppStrings.accountType,
             style: TextStyle(
               fontSize: 12,
-              color: AppColors.textHint,
+              color: hintColor,
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -271,12 +302,12 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 12),
                   decoration: BoxDecoration(
                     color: isSelected
-                        ? AppColors.primarySurface
-                        : AppColors.surfaceVariant,
+                        ? primarySurfaceColor
+                        : surfaceVariantColor,
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(
                       color: isSelected
-                          ? AppColors.primary
+                          ? primaryColor
                           : Colors.transparent,
                     ),
                   ),
@@ -286,8 +317,8 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
                         t['icon'] as IconData,
                         size: 18,
                         color: isSelected
-                            ? AppColors.primary
-                            : AppColors.textSecondary,
+                            ? primaryColor
+                            : textSecColor,
                       ),
                       const SizedBox(width: 8),
                       Text(
@@ -298,8 +329,8 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
                               ? FontWeight.w600
                               : FontWeight.w400,
                           color: isSelected
-                              ? AppColors.primary
-                              : AppColors.textSecondary,
+                              ? primaryColor
+                              : textSecColor,
                         ),
                       ),
                     ],
@@ -314,26 +345,36 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
   }
 
   Widget _buildColorSelector() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardBg = isDark ? AppColors.surfaceDark : AppColors.surface;
+    final hintColor = isDark ? AppColors.textHintDark : AppColors.textHint;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: cardBg,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: AppColors.cardShadow,
+        boxShadow: AppColors.dynamicCardShadow(isDark),
+        border: Border.all(
+          color: isDark ? AppColors.borderDark : AppColors.borderLight,
+          width: 1.0,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             AppStrings.categoryColor,
             style: TextStyle(
               fontSize: 12,
-              color: AppColors.textHint,
+              color: hintColor,
               fontWeight: FontWeight.w500,
             ),
           ),
           const SizedBox(height: 12),
-          Row(
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
             children: _colorOptions.map((color) {
               final isSelected = _selectedColor.toARGB32() == color.toARGB32();
               return GestureDetector(
@@ -341,7 +382,6 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
                 child: Container(
                   width: 36,
                   height: 36,
-                  margin: const EdgeInsets.only(right: 8),
                   decoration: BoxDecoration(
                     color: color,
                     shape: BoxShape.circle,
@@ -371,16 +411,24 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
   }
 
   Widget _buildDefaultToggle() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardBg = isDark ? AppColors.surfaceDark : AppColors.surface;
+    final primaryColor = isDark ? AppColors.accent : AppColors.primary;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: cardBg,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: AppColors.cardShadow,
+        boxShadow: AppColors.dynamicCardShadow(isDark),
+        border: Border.all(
+          color: isDark ? AppColors.borderDark : AppColors.borderLight,
+          width: 1.0,
+        ),
       ),
       child: Row(
         children: [
-          const Icon(Icons.star_border, color: AppColors.primary, size: 22),
+          Icon(Icons.star_border, color: primaryColor, size: 22),
           const SizedBox(width: 12),
           const Expanded(
             child: Text(
@@ -390,7 +438,7 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
           ),
           Switch(
             value: _isDefault,
-            activeThumbColor: AppColors.primary,
+            activeThumbColor: primaryColor,
             onChanged: (v) => setState(() => _isDefault = v),
           ),
         ],

@@ -78,8 +78,9 @@ class _ReportsScreenState extends State<ReportsScreen>
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: isDark ? AppColors.backgroundDark : AppColors.background,
       appBar: AppBar(
         title: const Text(AppStrings.reports),
         actions: [
@@ -96,9 +97,9 @@ class _ReportsScreenState extends State<ReportsScreen>
         ],
         bottom: TabBar(
           controller: _tabController,
-          indicatorColor: Colors.white,
-          labelColor: Colors.white,
-          unselectedLabelColor: Colors.white60,
+          indicatorColor: isDark ? AppColors.accent : Colors.white,
+          labelColor: isDark ? AppColors.accent : Colors.white,
+          unselectedLabelColor: isDark ? AppColors.textHintDark : Colors.white60,
           tabs: const [
             Tab(text: 'Tổng quan'),
             Tab(text: 'Danh mục'),
@@ -203,6 +204,12 @@ class _ReportsScreenState extends State<ReportsScreen>
   }
 
   Widget _buildCategoryTab() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardBg = isDark ? AppColors.surfaceDark : AppColors.surface;
+    final textPri = isDark ? AppColors.textPrimaryDark : AppColors.textPrimary;
+    final hintColor = isDark ? AppColors.textHintDark : AppColors.textHint;
+    final primaryColor = isDark ? AppColors.accent : AppColors.primary;
+
     return Consumer<TransactionProvider>(
       builder: (context, provider, _) {
         final expByCategory = provider.expenseByCategory;
@@ -224,9 +231,13 @@ class _ReportsScreenState extends State<ReportsScreen>
               height: 260,
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppColors.surface,
+                color: cardBg,
                 borderRadius: BorderRadius.circular(20),
-                boxShadow: AppColors.cardShadow,
+                boxShadow: AppColors.dynamicCardShadow(isDark),
+                border: Border.all(
+                  color: isDark ? AppColors.borderDark : AppColors.borderLight,
+                  width: 1.0,
+                ),
               ),
               child: PieChartWidget(
                 dataMap: {
@@ -243,14 +254,19 @@ class _ReportsScreenState extends State<ReportsScreen>
               final cat = provider.getCategoryById(entry.key);
               final total = expByCategory.values.fold(0.0, (a, b) => a + b);
               final pct = total > 0 ? (entry.value / total * 100) : 0.0;
+              final catColor = cat?.colorValue ?? primaryColor;
               return Padding(
                 padding: const EdgeInsets.only(bottom: 10),
                 child: Container(
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: AppColors.surface,
+                    color: cardBg,
                     borderRadius: BorderRadius.circular(14),
-                    boxShadow: AppColors.cardShadow,
+                    boxShadow: AppColors.dynamicCardShadow(isDark),
+                    border: Border.all(
+                      color: isDark ? AppColors.borderDark : AppColors.borderLight,
+                      width: 1.0,
+                    ),
                   ),
                   child: Row(
                     children: [
@@ -258,13 +274,12 @@ class _ReportsScreenState extends State<ReportsScreen>
                         width: 40,
                         height: 40,
                         decoration: BoxDecoration(
-                          color: (cat?.colorValue ?? AppColors.primary)
-                              .withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(10),
+                          color: catColor.withValues(alpha: 0.12),
+                          shape: BoxShape.circle,
                         ),
                         child: Icon(
-                          cat?.iconData ?? Icons.category,
-                          color: cat?.colorValue ?? AppColors.primary,
+                          cat?.iconData ?? Icons.category_rounded,
+                          color: catColor,
                           size: 20,
                         ),
                       ),
@@ -275,20 +290,19 @@ class _ReportsScreenState extends State<ReportsScreen>
                           children: [
                             Text(
                               cat?.name ?? 'Khác',
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w600,
+                              style: TextStyle(
+                                fontWeight: FontWeight.w700,
+                                color: textPri,
                               ),
                             ),
-                            const SizedBox(height: 4),
+                            const SizedBox(height: 6),
                             ClipRRect(
                               borderRadius: BorderRadius.circular(4),
                               child: LinearProgressIndicator(
                                 value: pct / 100,
-                                minHeight: 6,
-                                backgroundColor: AppColors.surfaceVariant,
-                                valueColor: AlwaysStoppedAnimation(
-                                  cat?.colorValue ?? AppColors.primary,
-                                ),
+                                minHeight: 5,
+                                backgroundColor: isDark ? AppColors.borderDark : AppColors.surfaceVariant,
+                                valueColor: AlwaysStoppedAnimation(catColor),
                               ),
                             ),
                           ],
@@ -301,15 +315,17 @@ class _ReportsScreenState extends State<ReportsScreen>
                           Text(
                             CurrencyFormatter.compact(entry.value),
                             style: const TextStyle(
-                              fontWeight: FontWeight.w700,
+                              fontWeight: FontWeight.w800,
                               color: AppColors.expense,
                             ),
                           ),
+                          const SizedBox(height: 2),
                           Text(
                             '${pct.toStringAsFixed(1)}%',
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: AppColors.textHint,
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: hintColor,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
                         ],
@@ -327,6 +343,12 @@ class _ReportsScreenState extends State<ReportsScreen>
   }
 
   Widget _buildTrendTab() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardBg = isDark ? AppColors.surfaceDark : AppColors.surface;
+    final textPri = isDark ? AppColors.textPrimaryDark : AppColors.textPrimary;
+    final textSec = isDark ? AppColors.textSecondaryDark : AppColors.textSecondary;
+    final dividerColor = isDark ? AppColors.dividerDark : AppColors.dividerLight;
+
     return Consumer<TransactionProvider>(
       builder: (context, provider, _) {
         final yearTransactions = _yearTransactions.isNotEmpty
@@ -350,9 +372,13 @@ class _ReportsScreenState extends State<ReportsScreen>
               height: 300,
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppColors.surface,
+                color: cardBg,
                 borderRadius: BorderRadius.circular(20),
-                boxShadow: AppColors.cardShadow,
+                boxShadow: AppColors.dynamicCardShadow(isDark),
+                border: Border.all(
+                  color: isDark ? AppColors.borderDark : AppColors.borderLight,
+                  width: 1.0,
+                ),
               ),
               child: BarChartWidget(expenses: expenses, incomes: incomes),
             ),
@@ -361,25 +387,29 @@ class _ReportsScreenState extends State<ReportsScreen>
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppColors.surface,
+                color: cardBg,
                 borderRadius: BorderRadius.circular(16),
-                boxShadow: AppColors.cardShadow,
+                boxShadow: AppColors.dynamicCardShadow(isDark),
+                border: Border.all(
+                  color: isDark ? AppColors.borderDark : AppColors.borderLight,
+                  width: 1.0,
+                ),
               ),
               child: Column(
                 children: [
                   Row(
-                    children: const [
+                    children: [
                       Expanded(
                         child: Text(
                           'Tháng',
                           style: TextStyle(
                             fontWeight: FontWeight.w700,
                             fontSize: 13,
-                            color: AppColors.textSecondary,
+                            color: textSec,
                           ),
                         ),
                       ),
-                      Expanded(
+                      const Expanded(
                         child: Text(
                           'Thu nhập',
                           textAlign: TextAlign.center,
@@ -390,7 +420,7 @@ class _ReportsScreenState extends State<ReportsScreen>
                           ),
                         ),
                       ),
-                      Expanded(
+                      const Expanded(
                         child: Text(
                           'Chi tiêu',
                           textAlign: TextAlign.right,
@@ -403,17 +433,17 @@ class _ReportsScreenState extends State<ReportsScreen>
                       ),
                     ],
                   ),
-                  const Divider(height: 16),
+                  Divider(height: 16, color: dividerColor),
                   ...List.generate(
                     12,
                     (i) => Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4),
+                      padding: const EdgeInsets.symmetric(vertical: 6),
                       child: Row(
                         children: [
                           Expanded(
                             child: Text(
                               DateFormatter.monthName(i + 1),
-                              style: const TextStyle(fontSize: 13),
+                              style: TextStyle(fontSize: 13, color: textPri, fontWeight: FontWeight.w500),
                             ),
                           ),
                           Expanded(
@@ -423,7 +453,7 @@ class _ReportsScreenState extends State<ReportsScreen>
                               style: const TextStyle(
                                 fontSize: 13,
                                 color: AppColors.income,
-                                fontWeight: FontWeight.w500,
+                                fontWeight: FontWeight.w700,
                               ),
                             ),
                           ),
@@ -434,7 +464,7 @@ class _ReportsScreenState extends State<ReportsScreen>
                               style: const TextStyle(
                                 fontSize: 13,
                                 color: AppColors.expense,
-                                fontWeight: FontWeight.w500,
+                                fontWeight: FontWeight.w700,
                               ),
                             ),
                           ),
@@ -453,65 +483,76 @@ class _ReportsScreenState extends State<ReportsScreen>
   }
 
   Widget _buildSmartInsightsCard(List<SmartFinanceInsight> insights) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardBg = isDark ? AppColors.surfaceDark : AppColors.surface;
+    final textPri = isDark ? AppColors.textPrimaryDark : AppColors.textPrimary;
+    final textSec = isDark ? AppColors.textSecondaryDark : AppColors.textSecondary;
+    final primaryColor = isDark ? AppColors.accent : AppColors.primary;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: cardBg,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: AppColors.cardShadow,
+        boxShadow: AppColors.dynamicCardShadow(isDark),
+        border: Border.all(
+          color: isDark ? AppColors.borderDark : AppColors.borderLight,
+          width: 1.0,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
             children: [
               Icon(
                 Icons.auto_awesome_rounded,
-                color: AppColors.primary,
+                color: primaryColor,
                 size: 20,
               ),
-              SizedBox(width: 8),
+              const SizedBox(width: 8),
               Text(
                 'Phân tích thông minh',
-                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
+                style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16, color: textPri),
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
           ...insights.map((insight) {
             return Padding(
-              padding: const EdgeInsets.only(bottom: 10),
+              padding: const EdgeInsets.only(bottom: 12),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
-                    width: 34,
-                    height: 34,
+                    width: 36,
+                    height: 36,
                     decoration: BoxDecoration(
                       color: insight.color.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(10),
+                      shape: BoxShape.circle,
                     ),
                     child: Icon(insight.icon, color: insight.color, size: 18),
                   ),
-                  const SizedBox(width: 10),
+                  const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           insight.title,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontWeight: FontWeight.w700,
-                            color: AppColors.textPrimary,
+                            color: textPri,
+                            fontSize: 14,
                           ),
                         ),
-                        const SizedBox(height: 2),
+                        const SizedBox(height: 3),
                         Text(
                           insight.message,
-                          style: const TextStyle(
-                            color: AppColors.textSecondary,
+                          style: TextStyle(
+                            color: textSec,
                             fontSize: 13,
-                            height: 1.35,
+                            height: 1.4,
                           ),
                         ),
                       ],
@@ -527,30 +568,39 @@ class _ReportsScreenState extends State<ReportsScreen>
   }
 
   Widget _buildForecastCard(ForecastResult forecast) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardBg = isDark ? AppColors.surfaceDark : AppColors.surface;
+    final textPri = isDark ? AppColors.textPrimaryDark : AppColors.textPrimary;
+    final textSec = isDark ? AppColors.textSecondaryDark : AppColors.textSecondary;
+
     final savingColor = forecast.projectedSaving >= 0
         ? AppColors.income
         : AppColors.expense;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: cardBg,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: AppColors.cardShadow,
+        boxShadow: AppColors.dynamicCardShadow(isDark),
+        border: Border.all(
+          color: isDark ? AppColors.borderDark : AppColors.borderLight,
+          width: 1.0,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
             children: [
-              Icon(Icons.timeline_rounded, color: AppColors.info, size: 20),
-              SizedBox(width: 8),
+              const Icon(Icons.timeline_rounded, color: AppColors.info, size: 20),
+              const SizedBox(width: 8),
               Text(
                 'Dự đoán cuối tháng',
-                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
+                style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16, color: textPri),
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
           Row(
             children: [
               Expanded(
@@ -578,13 +628,13 @@ class _ReportsScreenState extends State<ReportsScreen>
               ),
             ],
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
           Text(
             forecast.daysRemaining > 0
                 ? 'Còn ${forecast.daysRemaining} ngày. Nếu giữ nhịp hiện tại, app ước tính số tiền cuối tháng như trên.'
                 : 'Đây là tổng kết dựa trên dữ liệu của tháng đã chọn.',
-            style: const TextStyle(
-              color: AppColors.textSecondary,
+            style: TextStyle(
+              color: textSec,
               fontSize: 12,
             ),
           ),
@@ -594,8 +644,10 @@ class _ReportsScreenState extends State<ReportsScreen>
   }
 
   Widget _forecastMetric(String label, String value, Color color) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textSec = isDark ? AppColors.textSecondaryDark : AppColors.textSecondary;
     return Container(
-      padding: const EdgeInsets.all(10),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(12),
@@ -605,17 +657,18 @@ class _ReportsScreenState extends State<ReportsScreen>
         children: [
           Text(
             label,
-            style: const TextStyle(
-              color: AppColors.textSecondary,
+            style: TextStyle(
+              color: textSec,
               fontSize: 11,
+              fontWeight: FontWeight.w500,
             ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 6),
           Text(
             value,
             style: TextStyle(
               color: color,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w800,
               fontSize: 13,
             ),
             maxLines: 1,
@@ -627,35 +680,44 @@ class _ReportsScreenState extends State<ReportsScreen>
   }
 
   Widget _buildBadgesCard(List<SmartBadge> badges) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardBg = isDark ? AppColors.surfaceDark : AppColors.surface;
+    final textPri = isDark ? AppColors.textPrimaryDark : AppColors.textPrimary;
+    final hintColor = isDark ? AppColors.textHintDark : AppColors.textHint;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: cardBg,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: AppColors.cardShadow,
+        boxShadow: AppColors.dynamicCardShadow(isDark),
+        border: Border.all(
+          color: isDark ? AppColors.borderDark : AppColors.borderLight,
+          width: 1.0,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
             children: [
-              Icon(
+              const Icon(
                 Icons.emoji_events_rounded,
                 color: AppColors.accentGold,
                 size: 20,
               ),
-              SizedBox(width: 8),
+              const SizedBox(width: 8),
               Text(
                 'Huy hiệu tài chính',
-                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
+                style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16, color: textPri),
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
           ...badges.map((badge) {
-            final color = badge.unlocked ? badge.color : AppColors.textHint;
+            final color = badge.unlocked ? badge.color : hintColor;
             return Padding(
-              padding: const EdgeInsets.only(bottom: 8),
+              padding: const EdgeInsets.only(bottom: 10),
               child: Row(
                 children: [
                   Icon(
@@ -663,7 +725,7 @@ class _ReportsScreenState extends State<ReportsScreen>
                     color: color,
                     size: 22,
                   ),
-                  const SizedBox(width: 10),
+                  const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -672,15 +734,16 @@ class _ReportsScreenState extends State<ReportsScreen>
                           badge.title,
                           style: TextStyle(
                             color: badge.unlocked
-                                ? AppColors.textPrimary
-                                : AppColors.textSecondary,
+                                ? textPri
+                                : hintColor,
                             fontWeight: FontWeight.w700,
                           ),
                         ),
+                        const SizedBox(height: 2),
                         Text(
                           badge.description,
-                          style: const TextStyle(
-                            color: AppColors.textHint,
+                          style: TextStyle(
+                            color: hintColor,
                             fontSize: 12,
                           ),
                         ),
@@ -724,6 +787,10 @@ class _ReportsScreenState extends State<ReportsScreen>
   }
 
   Widget _buildMonthSelector() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textPri = isDark ? AppColors.textPrimaryDark : AppColors.textPrimary;
+    final iconColor = isDark ? AppColors.accent : AppColors.primary;
+
     return Row(
       children: [
         IconButton(
@@ -738,16 +805,16 @@ class _ReportsScreenState extends State<ReportsScreen>
             });
             _loadData();
           },
-          icon: const Icon(Icons.chevron_left, color: AppColors.primary),
+          icon: Icon(Icons.chevron_left, color: iconColor),
         ),
         Expanded(
           child: Text(
             '${DateFormatter.monthName(_selectedMonth)} $_selectedYear',
             textAlign: TextAlign.center,
-            style: const TextStyle(
+            style: TextStyle(
               fontWeight: FontWeight.w700,
               fontSize: 16,
-              color: AppColors.textPrimary,
+              color: textPri,
             ),
           ),
         ),
@@ -763,13 +830,17 @@ class _ReportsScreenState extends State<ReportsScreen>
             });
             _loadData();
           },
-          icon: const Icon(Icons.chevron_right, color: AppColors.primary),
+          icon: Icon(Icons.chevron_right, color: iconColor),
         ),
       ],
     );
   }
 
   Widget _buildYearSelector() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textPri = isDark ? AppColors.textPrimaryDark : AppColors.textPrimary;
+    final iconColor = isDark ? AppColors.accent : AppColors.primary;
+
     return Row(
       children: [
         IconButton(
@@ -777,13 +848,17 @@ class _ReportsScreenState extends State<ReportsScreen>
             setState(() => _selectedYear--);
             _loadData();
           },
-          icon: const Icon(Icons.chevron_left, color: AppColors.primary),
+          icon: Icon(Icons.chevron_left, color: iconColor),
         ),
         Expanded(
           child: Text(
             'Năm $_selectedYear',
             textAlign: TextAlign.center,
-            style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
+            style: TextStyle(
+              fontWeight: FontWeight.w700,
+              fontSize: 16,
+              color: textPri,
+            ),
           ),
         ),
         IconButton(
@@ -791,7 +866,7 @@ class _ReportsScreenState extends State<ReportsScreen>
             setState(() => _selectedYear++);
             _loadData();
           },
-          icon: const Icon(Icons.chevron_right, color: AppColors.primary),
+          icon: Icon(Icons.chevron_right, color: iconColor),
         ),
       ],
     );
@@ -803,12 +878,20 @@ class _ReportsScreenState extends State<ReportsScreen>
     Color color,
     IconData icon,
   ) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardBg = isDark ? AppColors.surfaceDark : AppColors.surface;
+    final textSec = isDark ? AppColors.textSecondaryDark : AppColors.textSecondary;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: cardBg,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: AppColors.cardShadow,
+        boxShadow: AppColors.dynamicCardShadow(isDark),
+        border: Border.all(
+          color: isDark ? AppColors.borderDark : AppColors.borderLight,
+          width: 1.0,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -819,9 +902,9 @@ class _ReportsScreenState extends State<ReportsScreen>
               const SizedBox(width: 6),
               Text(
                 label,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13,
-                  color: AppColors.textSecondary,
+                  color: textSec,
                 ),
               ),
             ],
@@ -841,23 +924,31 @@ class _ReportsScreenState extends State<ReportsScreen>
   }
 
   Widget _buildRateCard(double rate) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardBg = isDark ? AppColors.surfaceDark : AppColors.surface;
+    final textSec = isDark ? AppColors.textSecondaryDark : AppColors.textSecondary;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: cardBg,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: AppColors.cardShadow,
+        boxShadow: AppColors.dynamicCardShadow(isDark),
+        border: Border.all(
+          color: isDark ? AppColors.borderDark : AppColors.borderLight,
+          width: 1.0,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
             children: [
-              Icon(Icons.percent, color: AppColors.info, size: 18),
-              SizedBox(width: 6),
+              const Icon(Icons.percent, color: AppColors.info, size: 18),
+              const SizedBox(width: 6),
               Text(
                 'Tỷ lệ tiết kiệm',
-                style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                style: TextStyle(fontSize: 13, color: textSec),
               ),
             ],
           ),
@@ -880,29 +971,39 @@ class _ReportsScreenState extends State<ReportsScreen>
   }
 
   Widget _buildIncomeExpenseChart(double income, double expense) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardBg = isDark ? AppColors.surfaceDark : AppColors.surface;
+    final textPri = isDark ? AppColors.textPrimaryDark : AppColors.textPrimary;
+    final textSec = isDark ? AppColors.textSecondaryDark : AppColors.textSecondary;
+    final hintColor = isDark ? AppColors.textHintDark : AppColors.textHint;
+
     final maxVal = [income, expense].reduce((a, b) => a > b ? a : b);
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: cardBg,
         borderRadius: BorderRadius.circular(20),
-        boxShadow: AppColors.cardShadow,
+        boxShadow: AppColors.dynamicCardShadow(isDark),
+        border: Border.all(
+          color: isDark ? AppColors.borderDark : AppColors.borderLight,
+          width: 1.0,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Thu nhập vs Chi tiêu',
-            style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
+            style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: textPri),
           ),
           const SizedBox(height: 20),
           if (maxVal == 0)
-            const Center(
+            Center(
               child: Padding(
-                padding: EdgeInsets.all(24),
+                padding: const EdgeInsets.all(24),
                 child: Text(
                   'Chưa có dữ liệu',
-                  style: TextStyle(color: AppColors.textHint),
+                  style: TextStyle(color: hintColor),
                 ),
               ),
             )
@@ -950,10 +1051,10 @@ class _ReportsScreenState extends State<ReportsScreen>
                         showTitles: true,
                         getTitlesWidget: (v, _) => Text(
                           v == 0 ? 'Thu nhập' : 'Chi tiêu',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
-                            color: AppColors.textSecondary,
+                            color: textSec,
                           ),
                         ),
                       ),

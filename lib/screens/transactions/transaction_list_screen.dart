@@ -47,8 +47,9 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: isDark ? AppColors.backgroundDark : AppColors.background,
       appBar: AppBar(
         title: const Text(AppStrings.navTransactions),
         actions: [
@@ -152,8 +153,12 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
   }
 
   Widget _buildSearchBar() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final containerBg = isDark ? AppColors.surfaceDark : AppColors.surface;
+    final hintColor = isDark ? AppColors.textHintDark : AppColors.textHint;
+
     return Container(
-      color: AppColors.surface,
+      color: containerBg,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: TextField(
         controller: _searchController,
@@ -164,7 +169,7 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
         onChanged: (_) => _scheduleSearch(),
         decoration: InputDecoration(
           hintText: AppStrings.searchTransactions,
-          prefixIcon: const Icon(Icons.search, color: AppColors.textHint),
+          prefixIcon: Icon(Icons.search, color: hintColor),
           suffixIcon: _searchController.text.isNotEmpty
               ? IconButton(
                   icon: const Icon(Icons.clear),
@@ -184,6 +189,12 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
   }
 
   Widget _buildTypeFilter() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final containerBg = isDark ? AppColors.surfaceDark : AppColors.surface;
+    final primaryColor = isDark ? AppColors.accent : AppColors.primary;
+    final primarySurfaceColor = isDark ? AppColors.primarySurfaceDark : AppColors.primarySurface;
+    final textSecColor = isDark ? AppColors.textSecondaryDark : AppColors.textSecondary;
+
     final filters = [
       {'label': 'Tất cả', 'type': null},
       {'label': 'Thu nhập', 'type': TransactionType.income},
@@ -191,7 +202,7 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
     ];
 
     return Container(
-      color: AppColors.surface,
+      color: containerBg,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
         children: filters.map((f) {
@@ -207,10 +218,10 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
                   f['type'] as TransactionType?,
                 );
               },
-              selectedColor: AppColors.primarySurface,
-              checkmarkColor: AppColors.primary,
+              selectedColor: primarySurfaceColor,
+              checkmarkColor: primaryColor,
               labelStyle: TextStyle(
-                color: isSelected ? AppColors.primary : AppColors.textSecondary,
+                color: isSelected ? primaryColor : textSecColor,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
                 fontSize: 13,
               ),
@@ -222,6 +233,7 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
   }
 
   Widget _buildTransactionList() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Consumer<TransactionProvider>(
       builder: (context, provider, _) {
         if (provider.isLoading) {
@@ -262,10 +274,10 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
                     children: [
                       Text(
                         DateFormatter.formatRelative(date),
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontWeight: FontWeight.w600,
                           fontSize: 14,
-                          color: AppColors.textSecondary,
+                          color: AppColors.txtSec(isDark),
                         ),
                       ),
                       Text(
@@ -308,8 +320,13 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
   }
 
   void _showFilterBottomSheet() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final sheetBg = isDark ? AppColors.surfaceDark : AppColors.surface;
+    final textPriColor = isDark ? AppColors.textPrimaryDark : AppColors.textPrimary;
+
     showModalBottomSheet(
       context: context,
+      backgroundColor: sheetBg,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -319,9 +336,9 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'Bộ lọc',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: textPriColor),
             ),
             const SizedBox(height: 16),
             SizedBox(
@@ -361,8 +378,14 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
   }
 
   void _showMonthPicker() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final sheetBg = isDark ? AppColors.surfaceDark : AppColors.surface;
+    final textPriColor = isDark ? AppColors.textPrimaryDark : AppColors.textPrimary;
+    final primaryColor = isDark ? AppColors.accent : AppColors.primary;
+
     showModalBottomSheet(
       context: context,
+      backgroundColor: sheetBg,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -370,11 +393,11 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
         return Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Padding(
-              padding: EdgeInsets.all(16),
+            Padding(
+              padding: const EdgeInsets.all(16),
               child: Text(
                 'Chọn tháng',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: textPriColor),
               ),
             ),
             SizedBox(
@@ -395,8 +418,8 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
                       margin: const EdgeInsets.all(4),
                       decoration: BoxDecoration(
                         color: isSelected
-                            ? AppColors.primary
-                            : AppColors.surfaceVariant,
+                            ? primaryColor
+                            : AppColors.sfVariant(isDark),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Center(
@@ -405,7 +428,7 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
                           style: TextStyle(
                             color: isSelected
                                 ? Colors.white
-                                : AppColors.textPrimary,
+                                : textPriColor,
                             fontWeight: FontWeight.w600,
                           ),
                         ),

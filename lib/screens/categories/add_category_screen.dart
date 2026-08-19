@@ -84,8 +84,9 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
   @override
   Widget build(BuildContext context) {
     final isEditing = widget.existingCategory != null;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: isDark ? AppColors.backgroundDark : AppColors.background,
       appBar: AppBar(
         title: Text(
           isEditing ? AppStrings.editCategory : AppStrings.addCategory,
@@ -149,21 +150,29 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
   }
 
   Widget _buildNameField() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardBg = isDark ? AppColors.surfaceDark : AppColors.surface;
+    final hintColor = isDark ? AppColors.textHintDark : AppColors.textHint;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: cardBg,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: AppColors.cardShadow,
+        boxShadow: AppColors.dynamicCardShadow(isDark),
+        border: Border.all(
+          color: isDark ? AppColors.borderDark : AppColors.borderLight,
+          width: 1.0,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             AppStrings.categoryName,
             style: TextStyle(
               fontSize: 12,
-              color: AppColors.textHint,
+              color: hintColor,
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -190,21 +199,29 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
   }
 
   Widget _buildColorSelector() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardBg = isDark ? AppColors.surfaceDark : AppColors.surface;
+    final hintColor = isDark ? AppColors.textHintDark : AppColors.textHint;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: cardBg,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: AppColors.cardShadow,
+        boxShadow: AppColors.dynamicCardShadow(isDark),
+        border: Border.all(
+          color: isDark ? AppColors.borderDark : AppColors.borderLight,
+          width: 1.0,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             AppStrings.categoryColor,
             style: TextStyle(
               fontSize: 12,
-              color: AppColors.textHint,
+              color: hintColor,
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -247,21 +264,31 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
   }
 
   Widget _buildIconSelector() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardBg = isDark ? AppColors.surfaceDark : AppColors.surface;
+    final hintColor = isDark ? AppColors.textHintDark : AppColors.textHint;
+    final surfaceVariantColor = isDark ? AppColors.surfaceVariantDark : AppColors.surfaceVariant;
+    final textSecColor = isDark ? AppColors.textSecondaryDark : AppColors.textSecondary;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: cardBg,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: AppColors.cardShadow,
+        boxShadow: AppColors.dynamicCardShadow(isDark),
+        border: Border.all(
+          color: isDark ? AppColors.borderDark : AppColors.borderLight,
+          width: 1.0,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             AppStrings.categoryIcon,
             style: TextStyle(
               fontSize: 12,
-              color: AppColors.textHint,
+              color: hintColor,
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -285,7 +312,7 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
                   decoration: BoxDecoration(
                     color: isSelected
                         ? _selectedColor.withValues(alpha: 0.15)
-                        : AppColors.surfaceVariant,
+                        : surfaceVariantColor,
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(
                       color: isSelected ? _selectedColor : Colors.transparent,
@@ -295,7 +322,7 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
                     icon,
                     color: isSelected
                         ? _selectedColor
-                        : AppColors.textSecondary,
+                        : textSecColor,
                     size: 22,
                   ),
                 ),
@@ -324,13 +351,16 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
       } else {
         await provider.addCategory(category);
       }
-      if (mounted) Navigator.pop(context);
+      if (mounted) Navigator.pop(context, category);
     } finally {
       if (mounted) setState(() => _isSaving = false);
     }
   }
 
   Future<void> _confirmDelete() async {
+    final category = widget.existingCategory;
+    if (category == null || category.isDefault) return;
+
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -350,9 +380,7 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
       ),
     );
     if (confirmed == true && mounted) {
-      await context.read<CategoryProvider>().deleteCategory(
-        widget.existingCategory!.id,
-      );
+      await context.read<CategoryProvider>().deleteCategory(category.id);
       if (mounted) Navigator.pop(context);
     }
   }

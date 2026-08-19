@@ -75,14 +75,17 @@ class _FinancialAssistantScreenState extends State<FinancialAssistantScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryColor = isDark ? AppColors.accent : AppColors.primary;
+
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: isDark ? AppColors.backgroundDark : AppColors.background,
       appBar: AppBar(
-        title: const Text('AI Financial Assistant'),
+        title: const Text('AI Assistant'),
         actions: [
           IconButton(
             onPressed: _isLoading ? null : _loadData,
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh_rounded),
             tooltip: 'Tải lại dữ liệu',
           ),
         ],
@@ -90,15 +93,15 @@ class _FinancialAssistantScreenState extends State<FinancialAssistantScreen> {
       body: Column(
         children: [
           if (_isLoading)
-            const LinearProgressIndicator(
+            LinearProgressIndicator(
               minHeight: 3,
-              color: AppColors.primary,
-              backgroundColor: AppColors.surfaceVariant,
+              color: primaryColor,
+              backgroundColor: isDark ? AppColors.borderDark : AppColors.surfaceVariant,
             ),
           _buildSuggestions(),
           Expanded(
             child: ListView.builder(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
               itemCount: _messages.length,
               itemBuilder: (context, index) {
                 return _buildMessageBubble(_messages[index]);
@@ -112,10 +115,21 @@ class _FinancialAssistantScreenState extends State<FinancialAssistantScreen> {
   }
 
   Widget _buildSuggestions() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardBg = isDark ? AppColors.surfaceDark : AppColors.surface;
+
     return Container(
       width: double.infinity,
-      color: AppColors.surface,
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 10),
+      decoration: BoxDecoration(
+        color: cardBg,
+        border: Border(
+          bottom: BorderSide(
+            color: isDark ? AppColors.dividerDark : AppColors.dividerLight,
+            width: 1.0,
+          ),
+        ),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: Row(
@@ -123,10 +137,24 @@ class _FinancialAssistantScreenState extends State<FinancialAssistantScreen> {
             return Padding(
               padding: const EdgeInsets.only(right: 8),
               child: ActionChip(
-                avatar: const Icon(Icons.auto_awesome, size: 16),
+                backgroundColor: isDark ? AppColors.primarySurfaceDark : AppColors.dividerLight,
+                side: BorderSide(
+                  color: isDark ? AppColors.borderDark : AppColors.borderLight,
+                  width: 1.0,
+                ),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
+                avatar: Icon(
+                  Icons.auto_awesome_rounded,
+                  size: 14,
+                  color: isDark ? AppColors.accent : AppColors.primary,
+                ),
                 label: Text(question),
                 onPressed: _isLoading ? null : () => _sendQuestion(question),
-                labelStyle: const TextStyle(fontSize: 12),
+                labelStyle: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
+                ),
               ),
             );
           }).toList(),
@@ -136,11 +164,20 @@ class _FinancialAssistantScreenState extends State<FinancialAssistantScreen> {
   }
 
   Widget _buildMessageBubble(_AssistantMessage message) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final alignment = message.isUser
         ? Alignment.centerRight
         : Alignment.centerLeft;
-    final color = message.isUser ? AppColors.primary : AppColors.surface;
-    final textColor = message.isUser ? Colors.white : AppColors.textPrimary;
+
+    final userBubbleGradient = isDark 
+        ? const LinearGradient(
+            colors: [Color(0xFF0D47A1), Color(0xFF1565C0)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          )
+        : AppColors.primaryGradient;
+
+    final textColor = message.isUser ? Colors.white : (isDark ? AppColors.textPrimaryDark : AppColors.textPrimary);
     final borderRadius = BorderRadius.only(
       topLeft: const Radius.circular(16),
       topRight: const Radius.circular(16),
@@ -154,35 +191,47 @@ class _FinancialAssistantScreenState extends State<FinancialAssistantScreen> {
         constraints: BoxConstraints(
           maxWidth: MediaQuery.of(context).size.width * 0.82,
         ),
-        margin: const EdgeInsets.only(bottom: 10),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          color: color,
+          gradient: message.isUser ? userBubbleGradient : null,
+          color: message.isUser ? null : (isDark ? AppColors.surfaceDark : AppColors.surface),
           borderRadius: borderRadius,
-          boxShadow: message.isUser ? null : AppColors.cardShadow,
+          boxShadow: message.isUser ? null : AppColors.dynamicCardShadow(isDark),
+          border: message.isUser 
+              ? null 
+              : Border.all(
+                  color: isDark ? AppColors.borderDark : AppColors.borderLight,
+                  width: 1.0,
+                ),
         ),
         child: Text(
           message.text,
-          style: TextStyle(color: textColor, height: 1.35, fontSize: 14),
+          style: TextStyle(color: textColor, height: 1.45, fontSize: 14, fontWeight: FontWeight.w500),
         ),
       ),
     );
   }
 
   Widget _buildInputBar() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardBg = isDark ? AppColors.surfaceDark : AppColors.surface;
+    final primaryColor = isDark ? AppColors.accent : AppColors.primary;
+    final textPri = isDark ? AppColors.textPrimaryDark : AppColors.textPrimary;
+    final hintColor = isDark ? AppColors.textHintDark : AppColors.textHint;
+
     return SafeArea(
       top: false,
       child: Container(
-        padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
+        padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
         decoration: BoxDecoration(
-          color: AppColors.surface,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.06),
-              blurRadius: 14,
-              offset: const Offset(0, -4),
+          color: cardBg,
+          border: Border(
+            top: BorderSide(
+              color: isDark ? AppColors.dividerDark : AppColors.dividerLight,
+              width: 1.0,
             ),
-          ],
+          ),
         ),
         child: Row(
           children: [
@@ -190,26 +239,46 @@ class _FinancialAssistantScreenState extends State<FinancialAssistantScreen> {
               child: TextField(
                 controller: _messageController,
                 minLines: 1,
-                maxLines: 3,
+                maxLines: 4,
                 keyboardType: TextInputType.multiline,
-                textInputAction: TextInputAction.newline,
-                enableSuggestions: false,
-                autocorrect: false,
-                smartDashesType: SmartDashesType.disabled,
-                smartQuotesType: SmartQuotesType.disabled,
-                decoration: const InputDecoration(
+                style: TextStyle(color: textPri, fontSize: 14),
+                decoration: InputDecoration(
                   hintText: 'Hỏi về chi tiêu, ngân sách, số dư...',
-                  contentPadding: EdgeInsets.symmetric(
-                    horizontal: 14,
+                  hintStyle: TextStyle(color: hintColor, fontSize: 14),
+                  filled: true,
+                  fillColor: isDark ? AppColors.backgroundDark : AppColors.background,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
                     vertical: 12,
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(24),
+                    borderSide: BorderSide.none,
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(24),
+                    borderSide: BorderSide.none,
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(24),
+                    borderSide: BorderSide(
+                      color: primaryColor.withValues(alpha: 0.5),
+                      width: 1.5,
+                    ),
                   ),
                 ),
               ),
             ),
-            const SizedBox(width: 8),
-            IconButton.filled(
+            const SizedBox(width: 10),
+            IconButton(
               onPressed: _isLoading ? null : _sendFromInput,
-              icon: const Icon(Icons.send_rounded),
+              style: IconButton.styleFrom(
+                backgroundColor: primaryColor,
+                foregroundColor: Colors.white,
+                disabledBackgroundColor: primaryColor.withValues(alpha: 0.3),
+                padding: const EdgeInsets.all(12),
+              ),
+              icon: const Icon(Icons.send_rounded, size: 20),
               tooltip: 'Gửi',
             ),
           ],

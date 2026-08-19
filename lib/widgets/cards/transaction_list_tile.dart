@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/utils/formatters.dart';
 import '../../data/models/transaction_model.dart';
@@ -21,77 +21,117 @@ class TransactionListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final isIncome = transaction.type == TransactionType.income;
     final isTransfer = transaction.type == TransactionType.transfer;
-    final amountColor = isIncome ? AppColors.income
-        : isTransfer ? AppColors.info : AppColors.expense;
+    
+    final amountColor = isIncome 
+        ? AppColors.income
+        : isTransfer ? (isDark ? AppColors.accent : AppColors.primary) : AppColors.expense;
     final amountPrefix = isIncome ? '+' : isTransfer ? '↔' : '-';
+
+    final cardBg = isDark ? AppColors.surfaceDark : AppColors.surface;
+    final textTitleStyle = TextStyle(
+      fontWeight: FontWeight.w700,
+      fontSize: 14,
+      color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
+    );
+    final textSubtitleStyle = TextStyle(
+      fontSize: 12,
+      color: isDark ? AppColors.textHintDark : AppColors.textHint,
+    );
 
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: BorderRadius.circular(14),
-          boxShadow: AppColors.cardShadow,
-        ),
-        child: Row(children: [
-          Container(
-            width: 46,
-            height: 46,
-            decoration: BoxDecoration(
-              color: (category?.colorValue ?? amountColor).withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(
-              isTransfer ? Icons.swap_horiz : (category?.iconData ?? Icons.receipt),
-              color: category?.colorValue ?? amountColor,
-              size: 22,
-            ),
+          color: cardBg,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: AppColors.dynamicCardShadow(isDark),
+          border: Border.all(
+            color: isDark ? AppColors.borderDark : AppColors.borderLight,
+            width: 1.0,
           ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(
-                category?.name ?? (isTransfer ? 'Chuyển khoản' : 'Giao dịch'),
-                style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
-                maxLines: 1, overflow: TextOverflow.ellipsis,
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: (category?.colorValue ?? amountColor).withValues(alpha: 0.12),
+                shape: BoxShape.circle,
               ),
-              const SizedBox(height: 2),
-              Row(children: [
-                if (transaction.note.isNotEmpty) ...[
-                  Expanded(
-                    child: Text(transaction.note,
-                        style: const TextStyle(fontSize: 12, color: AppColors.textHint),
-                        maxLines: 1, overflow: TextOverflow.ellipsis),
-                  ),
-                ] else ...[
+              child: Icon(
+                isTransfer ? Icons.swap_horiz : (category?.iconData ?? Icons.receipt_long_rounded),
+                color: category?.colorValue ?? amountColor,
+                size: 20,
+              ),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                   Text(
-                    account?.name ?? '',
-                    style: const TextStyle(fontSize: 12, color: AppColors.textHint),
+                    category?.name ?? (isTransfer ? 'Chuyển khoản' : 'Giao dịch'),
+                    style: textTitleStyle,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      if (transaction.note.isNotEmpty) ...[
+                        Expanded(
+                          child: Text(
+                            transaction.note,
+                            style: textSubtitleStyle,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ] else ...[
+                        Text(
+                          account?.name ?? '',
+                          style: textSubtitleStyle,
+                        ),
+                      ],
+                      if (transaction.isRecurring) ...[
+                        const SizedBox(width: 6),
+                        Icon(
+                          Icons.repeat_rounded,
+                          size: 13,
+                          color: isDark ? AppColors.textHintDark : AppColors.textHint,
+                        ),
+                      ],
+                    ],
                   ),
                 ],
-                const SizedBox(width: 8),
-                if (transaction.isRecurring)
-                  const Icon(Icons.repeat, size: 12, color: AppColors.textHint),
-              ]),
-            ]),
-          ),
-          const SizedBox(width: 12),
-          Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-            Text(
-              '$amountPrefix${CurrencyFormatter.compact(transaction.amount)}',
-              style: TextStyle(
-                color: amountColor, fontWeight: FontWeight.w700, fontSize: 15),
+              ),
             ),
-            const SizedBox(height: 2),
-            Text(
-              DateFormatter.formatRelative(transaction.date),
-              style: const TextStyle(fontSize: 11, color: AppColors.textHint),
+            const SizedBox(width: 12),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  '$amountPrefix${CurrencyFormatter.compact(transaction.amount)}',
+                  style: TextStyle(
+                    color: amountColor,
+                    fontWeight: FontWeight.w800,
+                    fontSize: 15,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  DateFormatter.formatRelative(transaction.date),
+                  style: textSubtitleStyle.copyWith(fontSize: 11),
+                ),
+              ],
             ),
-          ]),
-        ]),
+          ],
+        ),
       ),
     );
   }

@@ -8,8 +8,9 @@ class AboutScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: isDark ? AppColors.backgroundDark : AppColors.background,
       appBar: AppBar(title: const Text(AppStrings.about)),
       body: ListView(
         padding: const EdgeInsets.all(16),
@@ -17,9 +18,13 @@ class AboutScreen extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(22),
             decoration: BoxDecoration(
-              gradient: AppColors.primaryGradient,
+              gradient: isDark ? AppColors.cardGradientDark : AppColors.primaryGradient,
               borderRadius: BorderRadius.circular(20),
-              boxShadow: AppColors.elevatedShadow,
+              boxShadow: AppColors.dynamicElevatedShadow(isDark),
+              border: Border.all(
+                color: Colors.white.withValues(alpha: isDark ? 0.05 : 0.15),
+                width: 1.5,
+              ),
             ),
             child: const Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -39,14 +44,14 @@ class AboutScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          _section('Mục tiêu', [
+          _section(context, 'Mục tiêu', [
             'Ghi chép thu chi hằng ngày một cách rõ ràng.',
             'Theo dõi ngân sách theo từng danh mục.',
             'Phân tích tài chính cá nhân bằng báo cáo và biểu đồ.',
             'Quản lý nhiều tài khoản/ví trên cùng một ứng dụng.',
           ]),
           const SizedBox(height: 12),
-          _section('Tính năng nổi bật', [
+          _section(context, 'Tính năng nổi bật', [
             'Giao dịch thu nhập, chi tiêu, chuyển khoản.',
             'Danh mục tùy chỉnh và danh mục mặc định.',
             'Ngân sách, cảnh báo vượt hạn mức.',
@@ -54,7 +59,7 @@ class AboutScreen extends StatelessWidget {
             'Sao lưu cục bộ và bảo mật bằng mã PIN.',
           ]),
           const SizedBox(height: 12),
-          _section('Thông tin phiên bản', [
+          _section(context, 'Thông tin phiên bản', [
             'Phiên bản: 1.0.0',
             'Nhóm thực hiện: Nhóm 9 - Lập trình Di động',
             'Nền tảng: Flutter, Provider, Local JSON Storage',
@@ -64,13 +69,22 @@ class AboutScreen extends StatelessWidget {
     );
   }
 
-  Widget _section(String title, List<String> items) {
+  Widget _section(BuildContext context, String title, List<String> items) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardBg = isDark ? AppColors.surfaceDark : AppColors.surface;
+    final primaryColor = isDark ? AppColors.accent : AppColors.primary;
+    final textSec = isDark ? AppColors.textSecondaryDark : AppColors.textSecondary;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: cardBg,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: AppColors.cardShadow,
+        boxShadow: AppColors.dynamicCardShadow(isDark),
+        border: Border.all(
+          color: isDark ? AppColors.borderDark : AppColors.borderLight,
+          width: 1.0,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -83,10 +97,10 @@ class AboutScreen extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Icon(Icons.check_circle, color: AppColors.primary, size: 16),
+                  Icon(Icons.check_circle, color: primaryColor, size: 16),
                   const SizedBox(width: 8),
                   Expanded(
-                    child: Text(item, style: const TextStyle(color: AppColors.textSecondary)),
+                    child: Text(item, style: TextStyle(color: textSec)),
                   ),
                 ],
               ),

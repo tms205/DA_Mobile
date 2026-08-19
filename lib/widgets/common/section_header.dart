@@ -15,15 +15,16 @@ class SectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
           title,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 17,
             fontWeight: FontWeight.w700,
-            color: AppColors.textPrimary,
+            color: AppColors.txt(isDark),
           ),
         ),
         if (onSeeAll != null)
@@ -31,10 +32,10 @@ class SectionHeader extends StatelessWidget {
             onTap: onSeeAll,
             child: Text(
               seeAllLabel,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
-                color: AppColors.primary,
+                color: AppColors.pc(isDark),
               ),
             ),
           ),

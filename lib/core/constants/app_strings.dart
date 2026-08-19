@@ -138,4 +138,12 @@ class AppStrings {
   static const String today = 'Hôm nay';
   static const String yesterday = 'Hôm qua';
   static const String all = 'Tất cả';
+
+  // ── AI OCR ──────────────────────────────────────────────────
+  static const String reanalyzeWithAi = 'Phân tích lại với AI ✨';
+  static const String aiAnalyzing = 'Đang nhờ AI phân tích hóa đơn...';
+  static const String configureApiKey = 'Cấu hình AI API Key';
+  static const String apiKeyHint = 'Nhập Groq API Key của bạn...';
+  static const String getApiKeyGuide = 'Tạo API Key miễn phí tại console.groq.com/keys';
+
 }

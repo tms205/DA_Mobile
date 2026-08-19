@@ -47,12 +47,22 @@ class _HomeScreenState extends State<HomeScreen> {
     await budgetProv.refreshBudgetSpending();
   }
 
+  String _getGreeting() {
+    final hour = DateTime.now().hour;
+    if (hour < 12) return 'Chào buổi sáng';
+    if (hour < 18) return 'Chào buổi chiều';
+    return 'Chào buổi tối';
+  }
+
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryColor = isDark ? AppColors.accent : AppColors.primary;
+
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: isDark ? AppColors.backgroundDark : AppColors.background,
       body: RefreshIndicator(
-        color: AppColors.primary,
+        color: primaryColor,
         onRefresh: _loadData,
         child: CustomScrollView(
           slivers: [
@@ -62,7 +72,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Column(
                   children: [
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 16),
                     const BalanceCard(),
                     const SizedBox(height: 24),
                     _buildQuickActions(),
@@ -80,54 +90,80 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _navigateToAddTransaction,
-        backgroundColor: AppColors.primary,
-        icon: const Icon(Icons.add, color: Colors.white),
+        backgroundColor: primaryColor,
+        icon: const Icon(Icons.add_rounded, color: Colors.white),
         label: const Text(
           'Thêm giao dịch',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 14),
         ),
       ),
     );
   }
 
   Widget _buildAppBar() {
-    const greetingName = 'Nhóm 9';
+    const greetingName = 'opps';
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    final appBarGradient = isDark 
+        ? const LinearGradient(
+            colors: [Color(0xFF091E36), Color(0xFF0B0F19)],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          )
+        : AppColors.primaryGradient;
 
     return SliverAppBar(
       expandedHeight: 120,
       floating: false,
       pinned: true,
       stretch: true,
-      backgroundColor: AppColors.primary,
+      backgroundColor: isDark ? AppColors.surfaceDark : AppColors.primary,
       flexibleSpace: FlexibleSpaceBar(
         background: Container(
-          decoration: const BoxDecoration(gradient: AppColors.primaryGradient),
+          decoration: BoxDecoration(gradient: appBarGradient),
           child: SafeArea(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.end,
+                  Row(
                     children: [
-                      Text(
-                        '${AppStrings.greeting}, $greetingName!',
-                        style: const TextStyle(
-                          color: Colors.white70,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w400,
+                      Container(
+                        width: 44,
+                        height: 44,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.white.withValues(alpha: 0.15),
+                          border: Border.all(color: Colors.white24, width: 1.5),
+                        ),
+                        child: const Center(
+                          child: Icon(Icons.person_rounded, color: Colors.white, size: 24),
                         ),
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '${DateFormatter.monthName(_now.month)} ${_now.year}',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 22,
-                          fontWeight: FontWeight.w700,
-                        ),
+                      const SizedBox(width: 12),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            '${_getGreeting()}, $greetingName!',
+                            style: const TextStyle(
+                              color: Colors.white70,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            '${DateFormatter.monthName(_now.month)} ${_now.year}',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -136,9 +172,17 @@ class _HomeScreenState extends State<HomeScreen> {
                       context,
                       MaterialPageRoute(builder: (_) => const SettingsScreen()),
                     ),
-                    icon: const Icon(
-                      Icons.settings_outlined,
-                      color: Colors.white,
+                    icon: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.white.withValues(alpha: 0.1),
+                      ),
+                      child: const Icon(
+                        Icons.settings_outlined,
+                        color: Colors.white,
+                        size: 20,
+                      ),
                     ),
                     tooltip: AppStrings.settings,
                   ),
@@ -152,29 +196,40 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildQuickActions() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardBg = isDark ? AppColors.surfaceDark : AppColors.surface;
+
     final actions = [
       {
-        'icon': Icons.add_circle_outline,
+        'icon': Icons.arrow_upward_rounded,
         'label': 'Thu nhập',
-        'color': AppColors.income,
+        'gradient': AppColors.incomeGradient,
         'type': TransactionType.income,
       },
       {
-        'icon': Icons.remove_circle_outline,
+        'icon': Icons.arrow_downward_rounded,
         'label': 'Chi tiêu',
-        'color': AppColors.expense,
+        'gradient': AppColors.expenseGradient,
         'type': TransactionType.expense,
       },
       {
-        'icon': Icons.swap_horiz,
-        'label': 'Chuyển khoản',
-        'color': AppColors.info,
+        'icon': Icons.swap_horiz_rounded,
+        'label': 'Chuyển ví',
+        'gradient': const LinearGradient(
+          colors: [Color(0xFF29B6F6), Color(0xFF0288D1)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
         'type': TransactionType.transfer,
       },
       {
-        'icon': Icons.qr_code_scanner,
+        'icon': Icons.qr_code_scanner_rounded,
         'label': 'Quét HĐ',
-        'color': AppColors.warning,
+        'gradient': const LinearGradient(
+          colors: [Color(0xFFFFB347), Color(0xFFF57C00)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
         'type': null,
       },
     ];
@@ -193,32 +248,48 @@ class _HomeScreenState extends State<HomeScreen> {
               }
             },
             child: Container(
-              margin: const EdgeInsets.symmetric(horizontal: 4),
-              constraints: const BoxConstraints(minHeight: 82),
-              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 12),
+              margin: const EdgeInsets.symmetric(horizontal: 5),
+              padding: const EdgeInsets.symmetric(vertical: 14),
               decoration: BoxDecoration(
-                color: AppColors.surface,
-                borderRadius: BorderRadius.circular(14),
-                boxShadow: AppColors.cardShadow,
+                color: cardBg,
+                borderRadius: BorderRadius.circular(18),
+                boxShadow: AppColors.dynamicCardShadow(isDark),
+                border: Border.all(
+                  color: isDark ? AppColors.borderDark : AppColors.borderLight,
+                  width: 1.0,
+                ),
               ),
               child: Column(
                 children: [
-                  Icon(
-                    action['icon'] as IconData,
-                    color: action['color'] as Color,
-                    size: 26,
+                  Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      gradient: action['gradient'] as LinearGradient,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: (action['gradient'] as LinearGradient).colors.first.withValues(alpha: 0.25),
+                          blurRadius: 8,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Icon(
+                      action['icon'] as IconData,
+                      color: Colors.white,
+                      size: 20,
+                    ),
                   ),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 8),
                   Text(
                     action['label'] as String,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 11,
-                      fontWeight: FontWeight.w500,
-                      color: AppColors.textSecondary,
+                      fontWeight: FontWeight.w600,
+                      color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
                     ),
                     textAlign: TextAlign.center,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),
@@ -230,6 +301,9 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildRecentTransactions() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryColor = isDark ? AppColors.accent : AppColors.primary;
+
     return Consumer<TransactionProvider>(
       builder: (context, provider, _) {
         final recent = provider.recentTransactions;
@@ -241,12 +315,12 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(height: 12),
             if (provider.isLoading)
-              const Center(
-                child: CircularProgressIndicator(color: AppColors.primary),
+              Center(
+                child: CircularProgressIndicator(color: primaryColor),
               )
             else if (recent.isEmpty)
               const EmptyState(
-                icon: Icons.receipt_long,
+                icon: Icons.receipt_long_rounded,
                 message: AppStrings.noTransactions,
               )
             else

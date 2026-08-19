@@ -12,6 +12,7 @@ import 'providers/budget_provider.dart';
 import 'providers/category_provider.dart';
 import 'providers/currency_provider.dart';
 import 'providers/security_provider.dart';
+import 'providers/theme_provider.dart';
 import 'providers/transaction_provider.dart';
 import 'screens/security/pin_lock_screen.dart';
 import 'screens/home/main_shell.dart';
@@ -83,17 +84,20 @@ class FinanceApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => CurrencyProvider()..initialize()),
         ChangeNotifierProvider(create: (_) => SecurityProvider()..initialize()),
+        ChangeNotifierProvider(create: (_) => ThemeProvider()..initialize()),
         ChangeNotifierProvider(create: (_) => TransactionProvider()),
         ChangeNotifierProvider(create: (_) => BudgetProvider()),
         ChangeNotifierProvider(create: (_) => AccountProvider()),
         ChangeNotifierProvider(create: (_) => CategoryProvider()),
       ],
-      child: Consumer2<CurrencyProvider, SecurityProvider>(
-        builder: (context, currencyProvider, securityProvider, _) =>
+      child: Consumer3<CurrencyProvider, SecurityProvider, ThemeProvider>(
+        builder: (context, currencyProvider, securityProvider, themeProvider, _) =>
             MaterialApp(
               title: AppStrings.appName,
               debugShowCheckedModeBanner: false,
               theme: AppTheme.lightTheme,
+              darkTheme: AppTheme.darkTheme,
+              themeMode: themeProvider.themeMode,
               home:
                   securityProvider.isPinEnabled && !securityProvider.isUnlocked
                   ? const PinLockScreen()

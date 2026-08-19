@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_strings.dart';
+import '../../providers/theme_provider.dart';
 import '../categories/categories_screen.dart';
 import '../security/pin_lock_screen.dart';
 import 'about_screen.dart';
@@ -29,14 +31,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: isDark ? AppColors.backgroundDark : AppColors.background,
       appBar: AppBar(title: const Text(AppStrings.settings)),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
           _buildProfileHeader(),
-          const SizedBox(height: 20),
+          const SizedBox(height: 24),
           _buildSection('Tài khoản', [
             _buildTile(
               context,
@@ -60,20 +64,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ),
             ),
+            _buildThemeSelector(context),
           ]),
-          const SizedBox(height: 16),
+          const SizedBox(height: 18),
           _buildSection('Thông báo', [
             _buildSwitchTile(
+              context,
               Icons.notifications_outlined,
               AppStrings.notifications,
               'Nhận thông báo ngân sách và nhắc nhở',
             ),
           ]),
-          const SizedBox(height: 16),
+          const SizedBox(height: 18),
           _buildSection('Nâng cao', [
             _buildTile(
               context,
-              Icons.backup,
+              Icons.backup_outlined,
               AppStrings.localBackup,
               'Sao lưu và khôi phục dữ liệu trên thiết bị',
               () => Navigator.push(
@@ -83,7 +89,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             _buildTile(
               context,
-              Icons.security,
+              Icons.security_outlined,
               AppStrings.security,
               'Đặt mã PIN bảo vệ ứng dụng',
               () => Navigator.push(
@@ -92,11 +98,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ),
           ]),
-          const SizedBox(height: 16),
+          const SizedBox(height: 18),
           _buildSection('Thông tin', [
             _buildTile(
               context,
-              Icons.info_outline,
+              Icons.info_outline_rounded,
               AppStrings.about,
               'Ứng dụng Quản lý Chi tiêu - Nhóm 9',
               () => Navigator.push(
@@ -106,7 +112,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             _buildTile(
               context,
-              Icons.update,
+              Icons.update_rounded,
               AppStrings.version,
               'v1.0.0',
               null,
@@ -119,19 +125,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Widget _buildProfileHeader() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final gradient = isDark ? AppColors.cardGradientDark : AppColors.cardGradient;
+
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        gradient: AppColors.primaryGradient,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: AppColors.elevatedShadow,
+        gradient: gradient,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: AppColors.dynamicElevatedShadow(isDark),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: isDark ? 0.05 : 0.15),
+          width: 1.5,
+        ),
       ),
       child: const Row(
         children: [
           CircleAvatar(
-            radius: 32,
+            radius: 30,
             backgroundColor: Colors.white24,
-            child: Icon(Icons.person, color: Colors.white, size: 36),
+            child: Icon(Icons.person_rounded, color: Colors.white, size: 32),
           ),
           SizedBox(width: 16),
           Expanded(
@@ -143,59 +156,110 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 18,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w800,
                   ),
                 ),
                 SizedBox(height: 4),
                 Text(
-                  'Dữ liệu được lưu trên thiết bị và có thể sao lưu cục bộ',
-                  style: TextStyle(color: Colors.white70, fontSize: 13),
+                  'Dữ liệu được lưu an toàn trên thiết bị này',
+                  style: TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.w500),
                 ),
               ],
             ),
           ),
-          Icon(Icons.phone_android_rounded, color: Colors.white70),
+          Icon(Icons.verified_user_rounded, color: Colors.white70),
         ],
       ),
     );
   }
 
   Widget _buildSection(String title, List<Widget> items) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardBg = isDark ? AppColors.surfaceDark : AppColors.surface;
+    final titleColor = isDark ? AppColors.textSecondaryDark : AppColors.textSecondary;
+    final dividerColor = isDark ? AppColors.dividerDark : AppColors.dividerLight;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.only(bottom: 8),
+          padding: const EdgeInsets.only(left: 4, bottom: 8),
           child: Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w700,
-              color: AppColors.textSecondary,
+              color: titleColor,
+              letterSpacing: 0.5,
             ),
           ),
         ),
         Container(
           decoration: BoxDecoration(
-            color: AppColors.surface,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: AppColors.cardShadow,
+            color: cardBg,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: AppColors.dynamicCardShadow(isDark),
+            border: Border.all(
+              color: isDark ? AppColors.borderDark : AppColors.borderLight,
+              width: 1.0,
+            ),
           ),
-          child: Column(
-            children: [
-              ...items.asMap().entries.map(
-                (entry) => Column(
-                  children: [
-                    entry.value,
-                    if (entry.key < items.length - 1)
-                      const Divider(height: 1, indent: 56),
-                  ],
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: Column(
+              children: [
+                ...items.asMap().entries.map(
+                  (entry) => Column(
+                    children: [
+                      entry.value,
+                      if (entry.key < items.length - 1)
+                        Divider(height: 1, indent: 56, color: dividerColor),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildTileContainer({
+    required BuildContext context,
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    Widget? trailing,
+    VoidCallback? onTap,
+  }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final iconColor = isDark ? AppColors.accent : AppColors.primary;
+    final iconBg = isDark ? AppColors.primarySurfaceDark : AppColors.primarySurface;
+    final textPri = isDark ? AppColors.textPrimaryDark : AppColors.textPrimary;
+    final textHintColor = isDark ? AppColors.textHintDark : AppColors.textHint;
+
+    return ListTile(
+      onTap: onTap,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      leading: Container(
+        width: 38,
+        height: 38,
+        decoration: BoxDecoration(
+          color: iconBg,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Icon(icon, color: iconColor, size: 20),
+      ),
+      title: Text(
+        title,
+        style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: textPri),
+      ),
+      subtitle: Text(
+        subtitle,
+        style: TextStyle(fontSize: 12, color: textHintColor, fontWeight: FontWeight.w500),
+      ),
+      trailing: trailing,
     );
   }
 
@@ -206,53 +270,100 @@ class _SettingsScreenState extends State<SettingsScreen> {
     String subtitle,
     VoidCallback? onTap,
   ) {
-    return ListTile(
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textHintColor = isDark ? AppColors.textHintDark : AppColors.textHint;
+    return _buildTileContainer(
+      context: context,
+      icon: icon,
+      title: title,
+      subtitle: subtitle,
       onTap: onTap,
-      leading: Container(
-        width: 38,
-        height: 38,
-        decoration: BoxDecoration(
-          color: AppColors.primarySurface,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Icon(icon, color: AppColors.primary, size: 20),
-      ),
-      title: Text(
-        title,
-        style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
-      ),
-      subtitle: Text(
-        subtitle,
-        style: const TextStyle(fontSize: 12, color: AppColors.textHint),
-      ),
       trailing: onTap != null
-          ? const Icon(Icons.chevron_right, color: AppColors.textHint)
+          ? Icon(Icons.chevron_right_rounded, color: textHintColor)
           : null,
     );
   }
 
-  Widget _buildSwitchTile(IconData icon, String title, String subtitle) {
-    return SwitchListTile(
-      secondary: Container(
-        width: 38,
-        height: 38,
-        decoration: BoxDecoration(
-          color: AppColors.primarySurface,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Icon(icon, color: AppColors.primary, size: 20),
+  Widget _buildSwitchTile(BuildContext context, IconData icon, String title, String subtitle) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final iconColor = isDark ? AppColors.accent : AppColors.primary;
+    return _buildTileContainer(
+      context: context,
+      icon: icon,
+      title: title,
+      subtitle: subtitle,
+      onTap: () => _saveNotificationsEnabled(!_notificationsEnabled),
+      trailing: Switch(
+        value: _notificationsEnabled,
+        activeTrackColor: iconColor,
+        onChanged: _saveNotificationsEnabled,
       ),
-      title: Text(
-        title,
-        style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
-      ),
-      subtitle: Text(
-        subtitle,
-        style: const TextStyle(fontSize: 12, color: AppColors.textHint),
-      ),
-      value: _notificationsEnabled,
-      activeThumbColor: AppColors.primary,
-      onChanged: _saveNotificationsEnabled,
+    );
+  }
+
+  Widget _buildThemeSelector(BuildContext context) {
+    final themeProvider = context.watch<ThemeProvider>();
+    String themeName = 'Theo hệ thống';
+    if (themeProvider.themeMode == ThemeMode.light) themeName = 'Chế độ sáng';
+    if (themeProvider.themeMode == ThemeMode.dark) themeName = 'Chế độ tối';
+
+    return _buildTile(
+      context,
+      Icons.dark_mode_outlined,
+      'Giao diện ứng dụng',
+      'Đang sử dụng: $themeName',
+      () => _showThemeDialog(context),
+    );
+  }
+
+  void _showThemeDialog(BuildContext context) {
+    final themeProvider = context.read<ThemeProvider>();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardBg = isDark ? AppColors.surfaceDark : AppColors.surface;
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: cardBg,
+          title: const Text('Chọn giao diện', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 18)),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              RadioListTile<ThemeMode>(
+                title: const Text('Chế độ sáng', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                value: ThemeMode.light,
+                groupValue: themeProvider.themeMode,
+                activeColor: isDark ? AppColors.accent : AppColors.primary,
+                onChanged: (val) {
+                  if (val != null) themeProvider.setThemeMode(val);
+                  Navigator.pop(context);
+                },
+              ),
+              RadioListTile<ThemeMode>(
+                title: const Text('Chế độ tối', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                value: ThemeMode.dark,
+                groupValue: themeProvider.themeMode,
+                activeColor: isDark ? AppColors.accent : AppColors.primary,
+                onChanged: (val) {
+                  if (val != null) themeProvider.setThemeMode(val);
+                  Navigator.pop(context);
+                },
+              ),
+              RadioListTile<ThemeMode>(
+                title: const Text('Theo hệ thống', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                value: ThemeMode.system,
+                groupValue: themeProvider.themeMode,
+                activeColor: isDark ? AppColors.accent : AppColors.primary,
+                onChanged: (val) {
+                  if (val != null) themeProvider.setThemeMode(val);
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 

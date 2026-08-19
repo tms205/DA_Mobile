@@ -2,7 +2,7 @@
     <uses-permission android:name="android.permission.INTERNET"/>
 
     <application
-        android:label="ltdd_nhom9"
+        android:label="Quản lý chi tiêu"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
