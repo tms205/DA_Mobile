@@ -69,6 +69,14 @@ class Category {
 
   Color get colorValue => Color(color);
   IconData get iconData => IconData(int.parse(icon), fontFamily: 'MaterialIcons');
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Category && runtimeType == other.runtimeType && id == other.id;
+
+  @override
+  int get hashCode => id.hashCode;
 }
 
 /// Danh mục mặc định khi khởi tạo ứng dụng

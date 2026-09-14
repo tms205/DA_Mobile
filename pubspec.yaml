@@ -55,6 +55,10 @@ dependencies:
   http: ^1.2.2
   crypto: ^3.0.6
   google_fonts: ^6.2.1
+  # Google Gemini AI SDK
+  google_generative_ai: ^0.4.7
+  # Environment configuration (.env)
+  flutter_dotenv: ^6.0.1
 
 dev_dependencies:
   flutter_test:
@@ -80,7 +84,8 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
-  # uses-material-design: true
+  assets:
+    - .env
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

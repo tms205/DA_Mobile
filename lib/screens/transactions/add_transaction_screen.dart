@@ -519,10 +519,13 @@ class _AddTransactionScreenState extends State<AddTransactionScreen>
   Widget _buildAccountSelector() {
     return Consumer<AccountProvider>(
       builder: (context, provider, _) {
+        final currentAccount = _selectedAccount != null
+            ? provider.accounts.where((a) => a.id == _selectedAccount!.id).firstOrNull ?? _selectedAccount
+            : null;
         return _buildCard(
           label: AppStrings.account,
           child: _buildDropdown<Account>(
-            value: _selectedAccount,
+            value: currentAccount,
             items: provider.accounts,
             itemLabel: (a) => a.name,
             onChanged: (a) => setState(() => _selectedAccount = a),
@@ -536,13 +539,17 @@ class _AddTransactionScreenState extends State<AddTransactionScreen>
   Widget _buildToAccountSelector() {
     return Consumer<AccountProvider>(
       builder: (context, provider, _) {
+        final available = provider.accounts
+            .where((a) => a.id != _selectedAccount?.id)
+            .toList();
+        final currentToAccount = _selectedToAccount != null
+            ? available.where((a) => a.id == _selectedToAccount!.id).firstOrNull
+            : null;
         return _buildCard(
           label: 'Tài khoản đích',
           child: _buildDropdown<Account>(
-            value: _selectedToAccount,
-            items: provider.accounts
-                .where((a) => a.id != _selectedAccount?.id)
-                .toList(),
+            value: currentToAccount,
+            items: available,
             itemLabel: (a) => a.name,
             onChanged: (a) => setState(() => _selectedToAccount = a),
             hint: 'Chọn tài khoản đích',
@@ -879,8 +886,11 @@ class _AddTransactionScreenState extends State<AddTransactionScreen>
     final hintColor = isDark ? AppColors.textHintDark : AppColors.textHint;
     final dropdownBg = isDark ? AppColors.surfaceDark : AppColors.surface;
 
+    final matches = items.where((item) => item == value).toList();
+    final T? safeValue = matches.length == 1 ? matches.first : null;
+
     return DropdownButton<T>(
-      value: value,
+      value: safeValue,
       isExpanded: true,
       underline: const SizedBox.shrink(),
       dropdownColor: dropdownBg,

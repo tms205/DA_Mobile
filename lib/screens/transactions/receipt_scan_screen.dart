@@ -1,3 +1,4 @@
+
 import 'dart:async';
 import 'dart:ui' as ui;
 
@@ -10,7 +11,7 @@ import 'package:image_picker/image_picker.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_strings.dart';
 import '../../core/utils/formatters.dart';
-import '../../data/services/groq_receipt_service.dart';
+import '../../data/services/gemini_receipt_service.dart';
 import '../../data/services/receipt_parser.dart';
 
 class ReceiptScanScreen extends StatefulWidget {
@@ -70,7 +71,7 @@ class _ReceiptScanScreenState extends State<ReceiptScanScreen> {
     return Scaffold(
       backgroundColor: isDark ? AppColors.backgroundDark : AppColors.background,
       appBar: AppBar(
-        title: const Text('OCR hóa đơn'),
+        title: const Text('OCR & AI hóa đơn'),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
@@ -275,7 +276,7 @@ class _ReceiptScanScreenState extends State<ReceiptScanScreen> {
             children: [
               Expanded(
                 child: ElevatedButton.icon(
-                  onPressed: _isBusy ? null : _parseWithGroqAi,
+                  onPressed: _isBusy ? null : _parseWithGoogleAi,
                   icon: _isAnalyzingWithAi
                       ? const SizedBox(
                           width: 18,
@@ -625,8 +626,13 @@ class _ReceiptScanScreenState extends State<ReceiptScanScreen> {
     _parseDebounce = Timer(const Duration(milliseconds: 300), _parse);
   }
 
-  Future<void> _parseWithGroqAi() async {
-    final apiKey = GroqReceiptService.getApiKey();
+  Future<void> _parseWithGoogleAi() async {
+    if (!GeminiReceiptService.hasApiKey()) {
+      setState(() {
+        _statusMessage = 'Chưa cấu hình API Key trong file .env.';
+      });
+      return;
+    }
 
     setState(() {
       _isAnalyzingWithAi = true;
@@ -634,10 +640,14 @@ class _ReceiptScanScreenState extends State<ReceiptScanScreen> {
     });
 
     try {
-      final result = await GroqReceiptService.parseReceipt(
-        apiKey: apiKey,
+      final mimeType = _imagePath?.toLowerCase().endsWith('.png') == true
+          ? 'image/png'
+          : 'image/jpeg';
+
+      final result = await GeminiReceiptService.parseReceipt(
         rawText: _textController.text,
         imageBytes: _imageBytes,
+        mimeType: mimeType,
       );
 
       if (!mounted) return;

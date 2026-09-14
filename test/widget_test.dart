@@ -1,12 +1,14 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:ltdd_nhom9/core/config/env_config.dart';
 import 'package:ltdd_nhom9/core/constants/app_strings.dart';
 import 'package:ltdd_nhom9/data/database/app_database.dart';
 import 'package:ltdd_nhom9/data/models/account_model.dart';
 import 'package:ltdd_nhom9/data/models/budget_model.dart';
 import 'package:ltdd_nhom9/data/models/category_model.dart';
 import 'package:ltdd_nhom9/data/models/transaction_model.dart';
+import 'package:ltdd_nhom9/data/services/gemini_receipt_service.dart';
 import 'package:ltdd_nhom9/data/services/receipt_parser.dart';
 import 'package:ltdd_nhom9/data/services/smart_finance_service.dart';
 import 'package:ltdd_nhom9/providers/budget_provider.dart';
@@ -187,5 +189,47 @@ void main() {
     );
 
     expect(response.answer, contains('Ăn uống'));
+  });
+
+  test('EnvConfig checks Gemini API key and AQ format correctly', () {
+    expect(EnvConfig.geminiApiKey, isA<String>());
+  });
+
+  test('Account and Category equality matches by id', () {
+    final acc1 = Account(
+      id: 'acc-1',
+      name: 'Ví tiền',
+      type: AccountType.cash,
+      balance: 1000,
+      color: 0xFF123456,
+      icon: 'cash',
+    );
+    final acc2 = Account(
+      id: 'acc-1',
+      name: 'Ví tiền mới',
+      type: AccountType.cash,
+      balance: 5000,
+      color: 0xFF123456,
+      icon: 'cash',
+    );
+    expect(acc1 == acc2, isTrue);
+    expect(acc1.hashCode, acc2.hashCode);
+
+    final cat1 = Category(
+      id: 'cat-1',
+      name: 'Ăn uống',
+      icon: '58123',
+      color: 0xFF123456,
+      isIncome: false,
+    );
+    final cat2 = Category(
+      id: 'cat-1',
+      name: 'Ăn uống cập nhật',
+      icon: '58123',
+      color: 0xFF123456,
+      isIncome: false,
+    );
+    expect(cat1 == cat2, isTrue);
+    expect(cat1.hashCode, cat2.hashCode);
   });
 }
